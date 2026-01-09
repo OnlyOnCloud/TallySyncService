@@ -27,6 +27,7 @@ bld/
 [Bb]in/
 [Oo]bj/
 msbuild.log
+.env
 msbuild.err
 msbuild.wrn
 
