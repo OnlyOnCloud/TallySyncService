@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/achiket/Documents/work/onlyoncloud/tally-cat/TallySyncService/TallySyncService.csproj": {}
+    "/home/achiket/Documents/work/onlyoncloud/TallySyncService/TallySyncService.csproj": {}
   },
   "projects": {
-    "/home/achiket/Documents/work/onlyoncloud/tally-cat/TallySyncService/TallySyncService.csproj": {
+    "/home/achiket/Documents/work/onlyoncloud/TallySyncService/TallySyncService.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/achiket/Documents/work/onlyoncloud/tally-cat/TallySyncService/TallySyncService.csproj",
+        "projectUniqueName": "/home/achiket/Documents/work/onlyoncloud/TallySyncService/TallySyncService.csproj",
         "projectName": "TallySyncService",
-        "projectPath": "/home/achiket/Documents/work/onlyoncloud/tally-cat/TallySyncService/TallySyncService.csproj",
+        "projectPath": "/home/achiket/Documents/work/onlyoncloud/TallySyncService/TallySyncService.csproj",
         "packagesPath": "/home/achiket/.nuget/packages/",
-        "outputPath": "/home/achiket/Documents/work/onlyoncloud/tally-cat/TallySyncService/obj/",
+        "outputPath": "/home/achiket/Documents/work/onlyoncloud/TallySyncService/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/achiket/.nuget/NuGet/NuGet.Config"
@@ -46,11 +46,25 @@
               "target": "Package",
               "version": "[8.0.0, )"
             },
-            "Microsoft.NET.ILLink.Tasks": {
-              "suppressParent": "All",
+            "Microsoft.Extensions.Http.Polly": {
               "target": "Package",
-              "version": "[8.0.22, )",
-              "autoReferenced": true
+              "version": "[8.0.0, )"
+            },
+            "Serilog.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Serilog.Sinks.Console": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
+            "Serilog.Sinks.File": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
+            "System.CommandLine": {
+              "target": "Package",
+              "version": "[2.0.0-beta4.22272.1, )"
             }
           },
           "imports": [
@@ -64,31 +78,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
-              "version": "[8.0.22, 8.0.22]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[8.0.22, 8.0.22]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Runtime.win-x64",
-              "version": "[8.0.22, 8.0.22]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
           "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.122/PortableRuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "win-x64": {
-          "#import": []
         }
       }
     }
