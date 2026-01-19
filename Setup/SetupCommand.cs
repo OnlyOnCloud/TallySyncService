@@ -24,7 +24,7 @@ public class SetupCommand
         try
         {
             Console.WriteLine("╔════════════════════════════════════════════╗");
-            Console.WriteLine("║   Tally Sync Service - Initial Setup      ║");
+            Console.WriteLine("║   Tally Sync Service - Initial Setup       ║");
             Console.WriteLine("╚════════════════════════════════════════════╝");
             Console.WriteLine();
 
@@ -35,7 +35,7 @@ public class SetupCommand
             if (!isConnected)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("✗ Cannot connect to Tally Prime!");
+                Console.WriteLine("X Cannot connect to Tally Prime!");
                 Console.ResetColor();
                 Console.WriteLine("Please ensure:");
                 Console.WriteLine("  1. Tally Prime is running");

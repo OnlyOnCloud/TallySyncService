@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "lcxRzkKWjWTP8EbEHPYjbNfETzGBXcA1FtIsbGLNxE+lRl1oc/NDUT7MuEa7TFcDe4v4t38XBx/Veo5CJiz52g==",
+  "dgSpecHash": "27MyDYiV6XGQUWI2lmKFfG0hc4YQERZcXvQLp98uhnyI2IgQ3wB944iLqYhTK6QZjtjbhBVAvTjBoRZNJbM/rA==",
   "success": true,
   "projectFilePath": "/home/achiket/Documents/work/onlyoncloud/TallySyncService/TallySyncService.csproj",
   "expectedPackageFiles": [
@@ -34,6 +34,7 @@
     "/home/achiket/.nuget/packages/microsoft.extensions.options/8.0.2/microsoft.extensions.options.8.0.2.nupkg.sha512",
     "/home/achiket/.nuget/packages/microsoft.extensions.options.configurationextensions/8.0.0/microsoft.extensions.options.configurationextensions.8.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/microsoft.extensions.primitives/8.0.0/microsoft.extensions.primitives.8.0.0.nupkg.sha512",
+    "/home/achiket/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",
     "/home/achiket/.nuget/packages/polly/7.2.4/polly.7.2.4.nupkg.sha512",
     "/home/achiket/.nuget/packages/polly.extensions.http/3.0.0/polly.extensions.http.3.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/serilog/3.1.1/serilog.3.1.1.nupkg.sha512",

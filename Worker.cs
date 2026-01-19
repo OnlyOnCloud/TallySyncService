@@ -10,6 +10,7 @@ public class Worker : BackgroundService
     private readonly ITallyService _tallyService;
     private readonly IBackendService _backendService;
     private readonly IConfigurationService _configService;
+    private readonly ISyncEngine _syncEngine;
     private readonly TallySyncOptions _options;
     private readonly SemaphoreSlim _syncLock = new(1, 1);
 
@@ -18,12 +19,14 @@ public class Worker : BackgroundService
         ITallyService tallyService,
         IBackendService backendService,
         IConfigurationService configService,
+        ISyncEngine syncEngine,
         IOptions<TallySyncOptions> options)
     {
         _logger = logger;
         _tallyService = tallyService;
         _backendService = backendService;
         _configService = configService;
+        _syncEngine = syncEngine;
         _options = options.Value;
     }
 
@@ -81,7 +84,9 @@ public class Worker : BackgroundService
 
         try
         {
+            _logger.LogInformation("=================================================");
             _logger.LogInformation("Starting sync cycle at: {Time}", DateTimeOffset.Now);
+            _logger.LogInformation("=================================================");
 
             // Check Tally connection
             if (!await _tallyService.CheckConnectionAsync())
@@ -117,47 +122,34 @@ public class Worker : BackgroundService
 
                 try
                 {
-                    _logger.LogInformation("Syncing table: {TableName}", tableName);
+                    // Get or create table state
+                    if (!config.TableStates.ContainsKey(tableName))
+                        config.TableStates[tableName] = new TableSyncState { TableName = tableName };
+                    
+                    var state = config.TableStates[tableName];
 
-                    // Fetch data from Tally
-                    var data = await _tallyService.FetchTableDataAsync(tableName);
+                    _logger.LogInformation("───────────────────────────────────────────────");
+                    _logger.LogInformation("Syncing table: {TableName} (Mode: {Mode})", 
+                        tableName, 
+                        state.InitialSyncComplete ? "INCREMENTAL" : "INITIAL");
+                    _logger.LogInformation("───────────────────────────────────────────────");
 
-                    // Save locally for backup
-                    await SaveLocalBackupAsync(tableName, data);
-
-                    // Send to backend
-                    var payload = new SyncPayload
-                    {
-                        TableName = tableName,
-                        Data = data,
-                        Timestamp = DateTime.UtcNow,
-                        SourceIdentifier = Environment.MachineName
-                    };
-
-                    var success = await _backendService.SendDataAsync(payload);
+                    // Use the sync engine
+                    var success = await _syncEngine.SyncTableAsync(tableName, state, stoppingToken);
 
                     if (success)
                     {
                         successCount++;
-                        
-                        // Update sync state
-                        if (!config.TableStates.ContainsKey(tableName))
-                            config.TableStates[tableName] = new TableSyncState { TableName = tableName };
-                        
-                        config.TableStates[tableName].LastSyncTime = DateTime.UtcNow;
-                        config.TableStates[tableName].TotalRecordsSynced++;
-                        config.TableStates[tableName].LastError = null;
-                        config.TableStates[tableName].LastErrorTime = null;
+                        state.LastError = null;
+                        state.LastErrorTime = null;
+                        _logger.LogInformation("✓ Successfully synced table: {TableName}", tableName);
                     }
                     else
                     {
                         failureCount++;
-                        
-                        if (!config.TableStates.ContainsKey(tableName))
-                            config.TableStates[tableName] = new TableSyncState { TableName = tableName };
-                        
-                        config.TableStates[tableName].LastError = "Failed to send to backend";
-                        config.TableStates[tableName].LastErrorTime = DateTime.UtcNow;
+                        state.LastError = "Sync failed";
+                        state.LastErrorTime = DateTime.UtcNow;
+                        _logger.LogError("✗ Failed to sync table: {TableName}", tableName);
                     }
                 }
                 catch (Exception ex)
@@ -176,61 +168,16 @@ public class Worker : BackgroundService
             // Save updated configuration
             await _configService.SaveConfigurationAsync(config);
 
-            _logger.LogInformation("Sync cycle completed. Success: {Success}, Failures: {Failures}", 
+            _logger.LogInformation("=================================================");
+            _logger.LogInformation("Sync cycle completed at: {Time}", DateTimeOffset.Now);
+            _logger.LogInformation("Summary - Success: {Success}, Failures: {Failures}", 
                 successCount, failureCount);
+            _logger.LogInformation("=================================================");
         }
         finally
         {
             _syncLock.Release();
         }
-    }
-
-    private async Task SaveLocalBackupAsync(string tableName, string data)
-    {
-        try
-        {
-            var backupDir = Path.Combine(_configService.GetDataDirectory(), "backups", tableName);
-            Directory.CreateDirectory(backupDir);
-
-            var fileName = $"{DateTime.UtcNow:yyyyMMdd_HHmmss}.xml";
-            var filePath = Path.Combine(backupDir, fileName);
-
-            await File.WriteAllTextAsync(filePath, data);
-
-            _logger.LogDebug("Saved local backup for {TableName} to {Path}", tableName, filePath);
-
-            // Keep only last 10 backups per table
-            await CleanupOldBackupsAsync(backupDir, 10);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to save local backup for {TableName}", tableName);
-        }
-    }
-
-    private async Task CleanupOldBackupsAsync(string directory, int keepCount)
-    {
-        await Task.Run(() =>
-        {
-            var files = Directory.GetFiles(directory)
-                .Select(f => new FileInfo(f))
-                .OrderByDescending(f => f.CreationTimeUtc)
-                .Skip(keepCount)
-                .ToList();
-
-            foreach (var file in files)
-            {
-                try
-                {
-                    file.Delete();
-                    _logger.LogDebug("Deleted old backup: {FileName}", file.Name);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to delete old backup: {FileName}", file.Name);
-                }
-            }
-        });
     }
 
     public override async Task StopAsync(CancellationToken stoppingToken)

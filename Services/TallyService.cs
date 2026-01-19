@@ -7,7 +7,7 @@ public interface ITallyService
 {
     Task<bool> CheckConnectionAsync();
     Task<List<TallyTable>> GetAvailableTablesAsync();
-    Task<string> FetchTableDataAsync(string tableName);
+    Task<string> FetchTableDataAsync(string tableName, DateTime? fromDate = null, DateTime? toDate = null);
 }
 
 public class TallyService : ITallyService
@@ -68,28 +68,14 @@ public class TallyService : ITallyService
         return Task.FromResult(tables);
     }
 
-    public async Task<string> FetchTableDataAsync(string tableName)
+    public async Task<string> FetchTableDataAsync(string tableName, DateTime? fromDate = null, DateTime? toDate = null)
     {
         try
         {
             var client = _httpClientFactory.CreateClient("TallyClient");
             
-            var collectionType = GetCollectionType(tableName);
-            var xmlPayload = $@"<ENVELOPE>
-                                <HEADER>
-                                    <VERSION>1</VERSION>
-                                    <TALLYREQUEST>Export</TALLYREQUEST>
-                                    <TYPE>Collection</TYPE>
-                                    <ID>List of {collectionType}</ID>
-                                </HEADER>
-                                <BODY>
-                                    <DESC>
-                                        <STATICVARIABLES>
-                                            <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
-                                        </STATICVARIABLES>
-                                    </DESC>
-                                </BODY>
-                              </ENVELOPE>";
+            // Build proper TDL request based on table type with date filters
+            var xmlPayload = GetTallyXmlRequest(tableName, fromDate, toDate);
 
             var content = new StringContent(xmlPayload, System.Text.Encoding.UTF8, "text/xml");
             var response = await client.PostAsync("", content);
@@ -97,8 +83,13 @@ public class TallyService : ITallyService
             response.EnsureSuccessStatusCode();
             
             var xmlData = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation("Successfully fetched data for table: {TableName}, Size: {Size} bytes", 
-                tableName, xmlData.Length);
+            
+            var dateInfo = fromDate.HasValue || toDate.HasValue 
+                ? $" (From: {fromDate:yyyy-MM-dd}, To: {toDate:yyyy-MM-dd})" 
+                : "";
+            
+            _logger.LogInformation("Successfully fetched data for table: {TableName}{DateInfo}, Size: {Size} bytes", 
+                tableName, dateInfo, xmlData.Length);
             
             return xmlData;
         }
@@ -124,6 +115,195 @@ public class TallyService : ITallyService
             "Currencies" => "Currency",
             "VoucherTypes" => "VoucherType",
             _ => tableName
+        };
+    }
+
+    private string GetTallyXmlRequest(string tableName, DateTime? fromDate, DateTime? toDate)
+    {
+        // Format dates for Tally (YYYYMMDD format)
+        var fromDateStr = fromDate?.ToString("yyyyMMdd") ?? "";
+        var toDateStr = toDate?.ToString("yyyyMMdd") ?? "";
+        
+        var dateFilter = "";
+        if (!string.IsNullOrEmpty(fromDateStr) && !string.IsNullOrEmpty(toDateStr))
+        {
+            dateFilter = $@"<SVFROMDATE>{fromDateStr}</SVFROMDATE>
+                           <SVTODATE>{toDateStr}</SVTODATE>";
+        }
+
+        return tableName switch
+        {
+            "Ledgers" => $@"<ENVELOPE>
+                            <HEADER>
+                                <TALLYREQUEST>Export Data</TALLYREQUEST>
+                            </HEADER>
+                            <BODY>
+                                <EXPORTDATA>
+                                    <REQUESTDESC>
+                                        <REPORTNAME>List of Accounts</REPORTNAME>
+                                        <STATICVARIABLES>
+                                            <SVEXPORTFORMAT>$SysName:XML</SVEXPORTFORMAT>
+                                            {dateFilter}
+                                        </STATICVARIABLES>
+                                    </REQUESTDESC>
+                                </EXPORTDATA>
+                            </BODY>
+                          </ENVELOPE>",
+
+            "Groups" => $@"<ENVELOPE>
+                            <HEADER>
+                                <TALLYREQUEST>Export Data</TALLYREQUEST>
+                            </HEADER>
+                            <BODY>
+                                <EXPORTDATA>
+                                    <REQUESTDESC>
+                                        <REPORTNAME>List of Groups</REPORTNAME>
+                                        <STATICVARIABLES>
+                                            <SVEXPORTFORMAT>$SysName:XML</SVEXPORTFORMAT>
+                                            {dateFilter}
+                                        </STATICVARIABLES>
+                                    </REQUESTDESC>
+                                </EXPORTDATA>
+                            </BODY>
+                          </ENVELOPE>",
+
+            "Vouchers" => $@"<ENVELOPE>
+                            <HEADER>
+                                <TALLYREQUEST>Export Data</TALLYREQUEST>
+                            </HEADER>
+                            <BODY>
+                                <EXPORTDATA>
+                                    <REQUESTDESC>
+                                        <REPORTNAME>Day Book</REPORTNAME>
+                                        <STATICVARIABLES>
+                                            <SVEXPORTFORMAT>$SysName:XML</SVEXPORTFORMAT>
+                                            {dateFilter}
+                                        </STATICVARIABLES>
+                                    </REQUESTDESC>
+                                </EXPORTDATA>
+                            </BODY>
+                          </ENVELOPE>",
+
+            "StockItems" => $@"<ENVELOPE>
+                            <HEADER>
+                                <TALLYREQUEST>Export Data</TALLYREQUEST>
+                            </HEADER>
+                            <BODY>
+                                <EXPORTDATA>
+                                    <REQUESTDESC>
+                                        <REPORTNAME>List of Stock Items</REPORTNAME>
+                                        <STATICVARIABLES>
+                                            <SVEXPORTFORMAT>$SysName:XML</SVEXPORTFORMAT>
+                                            {dateFilter}
+                                        </STATICVARIABLES>
+                                    </REQUESTDESC>
+                                </EXPORTDATA>
+                            </BODY>
+                          </ENVELOPE>",
+
+            "StockGroups" => $@"<ENVELOPE>
+                            <HEADER>
+                                <TALLYREQUEST>Export Data</TALLYREQUEST>
+                            </HEADER>
+                            <BODY>
+                                <EXPORTDATA>
+                                    <REQUESTDESC>
+                                        <REPORTNAME>List of Stock Groups</REPORTNAME>
+                                        <STATICVARIABLES>
+                                            <SVEXPORTFORMAT>$SysName:XML</SVEXPORTFORMAT>
+                                            {dateFilter}
+                                        </STATICVARIABLES>
+                                    </REQUESTDESC>
+                                </EXPORTDATA>
+                            </BODY>
+                          </ENVELOPE>",
+
+            "Units" => $@"<ENVELOPE>
+                            <HEADER>
+                                <TALLYREQUEST>Export Data</TALLYREQUEST>
+                            </HEADER>
+                            <BODY>
+                                <EXPORTDATA>
+                                    <REQUESTDESC>
+                                        <REPORTNAME>List of Units</REPORTNAME>
+                                        <STATICVARIABLES>
+                                            <SVEXPORTFORMAT>$SysName:XML</SVEXPORTFORMAT>
+                                            {dateFilter}
+                                        </STATICVARIABLES>
+                                    </REQUESTDESC>
+                                </EXPORTDATA>
+                            </BODY>
+                          </ENVELOPE>",
+
+            "CostCentres" => $@"<ENVELOPE>
+                            <HEADER>
+                                <TALLYREQUEST>Export Data</TALLYREQUEST>
+                            </HEADER>
+                            <BODY>
+                                <EXPORTDATA>
+                                    <REQUESTDESC>
+                                        <REPORTNAME>List of Cost Centres</REPORTNAME>
+                                        <STATICVARIABLES>
+                                            <SVEXPORTFORMAT>$SysName:XML</SVEXPORTFORMAT>
+                                            {dateFilter}
+                                        </STATICVARIABLES>
+                                    </REQUESTDESC>
+                                </EXPORTDATA>
+                            </BODY>
+                          </ENVELOPE>",
+
+            "Godowns" => $@"<ENVELOPE>
+                            <HEADER>
+                                <TALLYREQUEST>Export Data</TALLYREQUEST>
+                            </HEADER>
+                            <BODY>
+                                <EXPORTDATA>
+                                    <REQUESTDESC>
+                                        <REPORTNAME>List of Godowns</REPORTNAME>
+                                        <STATICVARIABLES>
+                                            <SVEXPORTFORMAT>$SysName:XML</SVEXPORTFORMAT>
+                                            {dateFilter}
+                                        </STATICVARIABLES>
+                                    </REQUESTDESC>
+                                </EXPORTDATA>
+                            </BODY>
+                          </ENVELOPE>",
+
+            "Currencies" => $@"<ENVELOPE>
+                            <HEADER>
+                                <TALLYREQUEST>Export Data</TALLYREQUEST>
+                            </HEADER>
+                            <BODY>
+                                <EXPORTDATA>
+                                    <REQUESTDESC>
+                                        <REPORTNAME>List of Currencies</REPORTNAME>
+                                        <STATICVARIABLES>
+                                            <SVEXPORTFORMAT>$SysName:XML</SVEXPORTFORMAT>
+                                            {dateFilter}
+                                        </STATICVARIABLES>
+                                    </REQUESTDESC>
+                                </EXPORTDATA>
+                            </BODY>
+                          </ENVELOPE>",
+
+            "VoucherTypes" => $@"<ENVELOPE>
+                            <HEADER>
+                                <TALLYREQUEST>Export Data</TALLYREQUEST>
+                            </HEADER>
+                            <BODY>
+                                <EXPORTDATA>
+                                    <REQUESTDESC>
+                                        <REPORTNAME>List of Voucher Types</REPORTNAME>
+                                        <STATICVARIABLES>
+                                            <SVEXPORTFORMAT>$SysName:XML</SVEXPORTFORMAT>
+                                            {dateFilter}
+                                        </STATICVARIABLES>
+                                    </REQUESTDESC>
+                                </EXPORTDATA>
+                            </BODY>
+                          </ENVELOPE>",
+
+            _ => throw new ArgumentException($"Unknown table name: {tableName}")
         };
     }
 }

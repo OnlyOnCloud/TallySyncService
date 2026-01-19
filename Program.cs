@@ -60,6 +60,13 @@ try
         return 0;
     }
 
+    // Check for test sync mode
+    if (args.Contains("--test-sync"))
+    {
+        await RunTestSyncAsync();
+        return 0;
+    }
+
     // Run as service
     await RunServiceModeAsync();
     return 0;
@@ -148,6 +155,152 @@ async Task ShowStatusAsync()
     Console.WriteLine();
 }
 
+async Task RunTestSyncAsync()
+{
+    Log.Information("Running test sync");
+    
+    var builder = Host.CreateApplicationBuilder(args);
+    ConfigureServices(builder);
+    
+    var host = builder.Build();
+    
+    var tallyService = host.Services.GetRequiredService<ITallyService>();
+    var backendService = host.Services.GetRequiredService<IBackendService>();
+    var configService = host.Services.GetRequiredService<IConfigurationService>();
+    
+    Console.WriteLine("╔════════════════════════════════════════════╗");
+    Console.WriteLine("║   Tally Sync Service - Test Sync         ║");
+    Console.WriteLine("╚════════════════════════════════════════════╝");
+    Console.WriteLine();
+    
+    // Check Tally connection
+    Console.WriteLine("1. Testing Tally connection...");
+    var tallyConnected = await tallyService.CheckConnectionAsync();
+    if (tallyConnected)
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("   ✓ Tally connection successful");
+        Console.ResetColor();
+    }
+    else
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("   ✗ Cannot connect to Tally");
+        Console.ResetColor();
+        return;
+    }
+    Console.WriteLine();
+    
+    // Check Backend connection
+    Console.WriteLine("2. Testing backend connection...");
+    var backendConnected = await backendService.CheckConnectionAsync();
+    if (backendConnected)
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("   ✓ Backend connection successful");
+        Console.ResetColor();
+    }
+    else
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("   ⚠ Backend connection failed (will still test data fetch)");
+        Console.ResetColor();
+    }
+    Console.WriteLine();
+    
+    // Load configuration
+    var config = await configService.LoadConfigurationAsync();
+    if (!config.IsConfigured || config.SelectedTables.Count == 0)
+    {
+        Console.WriteLine("No tables configured. Run --setup first.");
+        return;
+    }
+    
+    // Test sync first table
+    var testTable = config.SelectedTables.First();
+    Console.WriteLine($"3. Testing sync for table: {testTable}");
+    
+     try
+    {
+        // Fetch from Tally
+        Console.WriteLine($"   Fetching data from Tally...");
+        var data = await tallyService.FetchTableDataAsync(testTable);
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"   ✓ Fetched {data.Length} bytes from Tally");
+        Console.ResetColor();
+        Console.WriteLine();
+        
+        // Convert to JSON
+        var converter = host.Services.GetRequiredService<IXmlToJsonConverter>();
+        var records = converter.ConvertTallyXmlToRecords(data, testTable);
+        
+        Console.WriteLine($"   ✓ Converted to {records.Count} JSON records");
+        Console.WriteLine();
+        
+        // Show sample of data
+        if (records.Count > 0)
+        {
+            Console.WriteLine("   Sample record (first record):");
+            Console.WriteLine("   " + new string('─', 50));
+            var sampleJson = Newtonsoft.Json.JsonConvert.SerializeObject(records[0].Data, Newtonsoft.Json.Formatting.Indented);
+            var lines = sampleJson.Split('\n');
+            foreach (var line in lines.Take(20))
+            {
+                Console.WriteLine("   " + line);
+            }
+            if (lines.Length > 20)
+                Console.WriteLine("   ... (truncated)");
+            Console.WriteLine("   " + new string('─', 50));
+            Console.WriteLine();
+        }
+        
+        if (backendConnected)
+        {
+            // Send to backend
+            Console.WriteLine($"   Sending data to backend...");
+            var payload = new SyncPayload
+            {
+                TableName = testTable,
+                Records = records.Take(5).ToList(), // Send only first 5 for testing
+                Timestamp = DateTime.UtcNow,
+                SourceIdentifier = Environment.MachineName,
+                TotalRecords = records.Count,
+                ChunkNumber = 1,
+                TotalChunks = 1,
+                SyncMode = "TEST"
+            };
+            
+            var success = await backendService.SendDataAsync(payload);
+            if (success)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"   ✓ Successfully sent test data to backend");
+                Console.ResetColor();
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"   ✗ Failed to send data to backend");
+                Console.ResetColor();
+            }
+        }
+        else
+        {
+            Console.WriteLine($"   Skipping backend send (connection failed)");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"   ✗ Error: {ex.Message}");
+        Console.ResetColor();
+        Log.Error(ex, "Test sync failed");
+    }
+    
+    Console.WriteLine();
+    Console.WriteLine("Test sync completed. Check logs for details.");
+}
+
 async Task RunServiceModeAsync()
 {
     Log.Information("Starting Tally Sync Service");
@@ -181,6 +334,8 @@ void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.AddSingleton<IConfigurationService, ConfigurationService>();
     builder.Services.AddSingleton<ITallyService, TallyService>();
     builder.Services.AddSingleton<IBackendService, BackendService>();
+    builder.Services.AddSingleton<IXmlToJsonConverter, XmlToJsonConverter>();
+    builder.Services.AddSingleton<ISyncEngine, SyncEngine>();
     builder.Services.AddTransient<SetupCommand>();
 
     // Configure HttpClient for Tally with retry policy

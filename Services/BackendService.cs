@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using Microsoft.Extensions.Options;
 using TallySyncService.Models;
 
 namespace TallySyncService.Services;
@@ -13,16 +14,16 @@ public class BackendService : IBackendService
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<BackendService> _logger;
-    private readonly IConfiguration _configuration;
+    private readonly TallySyncOptions _options;
 
     public BackendService(
         IHttpClientFactory httpClientFactory, 
         ILogger<BackendService> logger,
-        IConfiguration configuration)
+        IOptions<TallySyncOptions> options)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
-        _configuration = configuration;
+        _options = options.Value;
     }
 
     public async Task<bool> CheckConnectionAsync()
@@ -31,13 +32,27 @@ public class BackendService : IBackendService
         {
             var client = _httpClientFactory.CreateClient("BackendClient");
             
-            // Try to ping a health endpoint
-            var response = await client.GetAsync("/health");
+            _logger.LogInformation("Checking backend connection at: {Url}{Endpoint}", 
+                _options.BackendUrl, _options.BackendHealthEndpoint);
+            
+            var response = await client.GetAsync(_options.BackendHealthEndpoint);
             
             var isConnected = response.IsSuccessStatusCode;
-            _logger.LogInformation("Backend connection check: {Status}", isConnected ? "Success" : "Failed");
+            _logger.LogInformation("Backend connection check: {Status} (StatusCode: {StatusCode})", 
+                isConnected ? "Success" : "Failed", response.StatusCode);
+            
+            if (!isConnected)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("Health check failed. Response: {Response}", errorContent);
+            }
             
             return isConnected;
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "HTTP error checking backend connection at {Url}", _options.BackendUrl);
+            return false;
         }
         catch (Exception ex)
         {
@@ -52,14 +67,25 @@ public class BackendService : IBackendService
         {
             var client = _httpClientFactory.CreateClient("BackendClient");
             
-            _logger.LogInformation("Sending data to backend. Table: {TableName}, Size: {Size} bytes", 
-                payload.TableName, payload.Data.Length);
+            _logger.LogInformation(
+                "Sending data to backend: {Url}{Endpoint} | Table: {TableName} | Records: {RecordCount} | Chunk: {Chunk}/{Total} | Mode: {Mode}", 
+                _options.BackendUrl, 
+                _options.BackendSyncEndpoint,
+                payload.TableName, 
+                payload.Records.Count,
+                payload.ChunkNumber,
+                payload.TotalChunks,
+                payload.SyncMode);
 
-            var response = await client.PostAsJsonAsync("/sync", payload);
+            var response = await client.PostAsJsonAsync(_options.BackendSyncEndpoint, payload);
+            
+            _logger.LogInformation("Backend response status: {StatusCode}", response.StatusCode);
             
             if (response.IsSuccessStatusCode)
             {
-                _logger.LogInformation("Successfully sent data for table: {TableName}", payload.TableName);
+                var responseContent = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation("Successfully sent chunk {Chunk}/{Total} for table: {TableName}. Response: {Response}", 
+                    payload.ChunkNumber, payload.TotalChunks, payload.TableName, responseContent);
                 return true;
             }
             else
@@ -69,6 +95,12 @@ public class BackendService : IBackendService
                     payload.TableName, response.StatusCode, errorContent);
                 return false;
             }
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "HTTP error sending data to backend for table: {TableName}. URL: {Url}", 
+                payload.TableName, _options.BackendUrl);
+            return false;
         }
         catch (Exception ex)
         {
