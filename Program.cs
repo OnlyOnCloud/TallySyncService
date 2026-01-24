@@ -357,6 +357,11 @@ void ConfigureServices(HostApplicationBuilder builder)
     builder.Services.Configure<TallySyncOptions>(
         builder.Configuration.GetSection("TallySync"));
 
+    // Register ODBC and CSV services
+    builder.Services.AddSingleton<IOdbcService, OdbcService>();
+    builder.Services.AddSingleton<ICsvExporter, CsvExporter>();
+    builder.Services.AddSingleton<IYamlConfigService, YamlConfigService>();
+
     // Register services
     builder.Services.AddSingleton<ConfigurationService>();
     builder.Services.AddSingleton<IConfigurationService>(sp => sp.GetRequiredService<ConfigurationService>());

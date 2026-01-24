@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "27MyDYiV6XGQUWI2lmKFfG0hc4YQERZcXvQLp98uhnyI2IgQ3wB944iLqYhTK6QZjtjbhBVAvTjBoRZNJbM/rA==",
+  "dgSpecHash": "s5QO5uuyZ2jJpQjPyUeSM5s+7FHmq5dTYpoYDsWoFby9S3ibsrREOKiLYz0sODZFdDrurx7pLH3pPSUfC5aI8Q==",
   "success": true,
   "projectFilePath": "/home/achiket/Documents/work/onlyoncloud/TallySyncService/TallySyncService.csproj",
   "expectedPackageFiles": [
+    "/home/achiket/.nuget/packages/csvhelper/30.0.1/csvhelper.30.0.1.nupkg.sha512",
     "/home/achiket/.nuget/packages/microsoft.extensions.configuration/8.0.0/microsoft.extensions.configuration.8.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/microsoft.extensions.configuration.abstractions/8.0.0/microsoft.extensions.configuration.abstractions.8.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/microsoft.extensions.configuration.binder/8.0.2/microsoft.extensions.configuration.binder.8.0.2.nupkg.sha512",
@@ -43,8 +44,11 @@
     "/home/achiket/.nuget/packages/serilog.sinks.console/5.0.0/serilog.sinks.console.5.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/serilog.sinks.file/5.0.0/serilog.sinks.file.5.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/system.commandline/2.0.0-beta4.22272.1/system.commandline.2.0.0-beta4.22272.1.nupkg.sha512",
+    "/home/achiket/.nuget/packages/system.data.odbc/8.0.0/system.data.odbc.8.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/system.diagnostics.eventlog/8.0.1/system.diagnostics.eventlog.8.0.1.nupkg.sha512",
-    "/home/achiket/.nuget/packages/system.serviceprocess.servicecontroller/8.0.0/system.serviceprocess.servicecontroller.8.0.0.nupkg.sha512"
+    "/home/achiket/.nuget/packages/system.serviceprocess.servicecontroller/8.0.0/system.serviceprocess.servicecontroller.8.0.0.nupkg.sha512",
+    "/home/achiket/.nuget/packages/system.text.encoding.codepages/8.0.0/system.text.encoding.codepages.8.0.0.nupkg.sha512",
+    "/home/achiket/.nuget/packages/yamldotnet/13.1.1/yamldotnet.13.1.1.nupkg.sha512"
   ],
   "logs": []
 }

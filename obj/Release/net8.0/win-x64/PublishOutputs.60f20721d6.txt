@@ -1,4 +1,0 @@
-/home/achiket/Documents/work/onlyoncloud/tally-cat/TallySyncService/bin/Release/net8.0/win-x64/publish/appsettings.Development.json
-/home/achiket/Documents/work/onlyoncloud/tally-cat/TallySyncService/bin/Release/net8.0/win-x64/publish/appsettings.json
-/home/achiket/Documents/work/onlyoncloud/tally-cat/TallySyncService/bin/Release/net8.0/win-x64/publish/TallySyncService.pdb
-/home/achiket/Documents/work/onlyoncloud/tally-cat/TallySyncService/bin/Release/net8.0/win-x64/publish/TallySyncService.exe

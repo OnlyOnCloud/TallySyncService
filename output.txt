@@ -1,0 +1,21 @@
+.
+├── ./appsettings.Development.json
+├── ./appsettings.json
+├── ./Models
+│   ├── ./Models/AuthModels.cs
+│   └── ./Models/SyncConfigurations.cs
+├── ./Program.cs
+├── ./Properties
+│   └── ./Properties/launchSettings.json
+├── ./Services
+│   ├── ./Services/AuthService.cs
+│   ├── ./Services/BackendService.cs
+│   ├── ./Services/ConfigurationService.cs
+│   ├── ./Services/SyncEngine.cs
+│   ├── ./Services/TallyService.cs
+│   └── ./Services/XmlToJsonConverter.cs
+├── ./Setup
+│   └── ./Setup/SetupCommand.cs
+├── ./tallysync.service
+├── ./TallySyncService.csproj
+└── ./Worker.cs
