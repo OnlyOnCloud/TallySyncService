@@ -1,115 +1,216 @@
-using System.Text.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 using TallySyncService.Models;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
-namespace TallySyncService.Services;
-
-public interface IConfigurationService
+namespace TallySyncService.Services
 {
-    Task<SyncConfiguration> LoadConfigurationAsync();
-    Task SaveConfigurationAsync(SyncConfiguration config);
-    string GetDataDirectory();
-}
-
-public class ConfigurationService : IConfigurationService
-{
-    private readonly string _dataDirectory;
-    private readonly string _configFilePath;
-    private readonly ILogger<ConfigurationService> _logger;
-    private readonly JsonSerializerOptions _jsonOptions;
-
-    public ConfigurationService(ILogger<ConfigurationService> logger, IConfiguration configuration)
+    public class ConfigurationService
     {
-        _logger = logger;
-        
-        // Determine data directory
-        var customDataDir = configuration["TallySync:DataDirectory"];
-        
-        if (!string.IsNullOrEmpty(customDataDir))
+        private readonly string _configPath;
+        private readonly string _yamlPath;
+        private readonly ILogger _logger;
+
+        public ConfigurationService(ILogger logger, string configPath = "config.json", string yamlPath = "tally-export-config.yaml")
         {
-            _dataDirectory = customDataDir;
+            _logger = logger;
+            _configPath = configPath;
+            _yamlPath = yamlPath;
         }
-        else
+
+        public async Task<AppConfiguration> LoadConfigurationAsync()
         {
-            // Check if running under Wine
-            var winePrefix = Environment.GetEnvironmentVariable("WINEPREFIX");
-            var isWine = !string.IsNullOrEmpty(winePrefix) || Directory.Exists(Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".wine"));
-            
-            if (isWine)
+            return await Task.Run(() =>
             {
-                // Use Wine's ProgramData directory
-                var homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                var winePrefixPath = !string.IsNullOrEmpty(winePrefix) ? winePrefix : Path.Combine(homeDir, ".wine");
-                _dataDirectory = Path.Combine(winePrefixPath, "drive_c", "ProgramData", "TallySyncService");
-            }
-            else if (OperatingSystem.IsWindows())
+                try
+                {
+                    if (!File.Exists(_configPath))
+                    {
+                        _logger.LogMessage("Configuration file not found. Creating default...");
+                        var defaultConfig = new AppConfiguration();
+                        SaveConfiguration(defaultConfig);
+                        return defaultConfig;
+                    }
+
+                    string json = File.ReadAllText(_configPath);
+                    dynamic? obj = JsonConvert.DeserializeObject<dynamic>(json);
+                    
+                    var config = new AppConfiguration();
+                    
+                    if (obj?["tally"] != null)
+                    {
+                        var tallyObj = obj["tally"];
+                        config.Tally.Server = tallyObj["server"]?.ToString() ?? "localhost";
+                        config.Tally.Port = int.TryParse(tallyObj["port"]?.ToString() ?? "9000", out int p) ? p : 9000;
+                        config.Tally.Company = tallyObj["company"]?.ToString() ?? "";
+                        
+                        if (tallyObj["selectedTables"] is Newtonsoft.Json.Linq.JArray tables)
+                        {
+                            config.Tally.SelectedTables = tables.ToObject<List<string>>() ?? new List<string>();
+                        }
+                    }
+
+                    if (obj?["sync"] != null)
+                    {
+                        var syncObj = obj["sync"];
+                        config.Sync.IntervalMinutes = int.TryParse(syncObj["intervalMinutes"]?.ToString() ?? "0", out int i) ? i : 0;
+                        config.Sync.ExportPath = syncObj["exportPath"]?.ToString() ?? "./exports";
+                    }
+
+                    return config;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError("ConfigurationService.LoadConfigurationAsync()", ex);
+                    return new AppConfiguration();
+                }
+            });
+        }
+
+        public async Task SaveConfigurationAsync(AppConfiguration config)
+        {
+            await Task.Run(() => SaveConfiguration(config));
+        }
+
+        private void SaveConfiguration(AppConfiguration config)
+        {
+            try
             {
-                _dataDirectory = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                    "TallySyncService");
+                var json = JsonConvert.SerializeObject(new
+                {
+                    tally = new
+                    {
+                        server = config.Tally.Server,
+                        port = config.Tally.Port,
+                        company = config.Tally.Company,
+                        selectedTables = config.Tally.SelectedTables
+                    },
+                    sync = new
+                    {
+                        intervalMinutes = config.Sync.IntervalMinutes,
+                        exportPath = config.Sync.ExportPath
+                    }
+                }, Formatting.Indented);
+
+                File.WriteAllText(_configPath, json);
+                _logger.LogMessage("Configuration saved to {0}", _configPath);
             }
-            else
+            catch (Exception ex)
             {
-                // For Linux/Mac without Wine, use user's home directory
-                var homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                _dataDirectory = Path.Combine(homeDir, ".tallysync");
+                _logger.LogError("ConfigurationService.SaveConfiguration()", ex);
             }
         }
 
-        Directory.CreateDirectory(_dataDirectory);
-        _configFilePath = Path.Combine(_dataDirectory, "sync-config.json");
-
-        _jsonOptions = new JsonSerializerOptions
+        public async Task<List<TableDefinition>> LoadTableDefinitionsAsync()
         {
-            WriteIndented = true,
-            PropertyNameCaseInsensitive = true
-        };
-
-        _logger.LogInformation("Configuration service initialized. Data directory: {Directory}", _dataDirectory);
-    }
-
-    public string GetDataDirectory() => _dataDirectory;
-
-    public async Task<SyncConfiguration> LoadConfigurationAsync()
-    {
-        try
-        {
-            if (!File.Exists(_configFilePath))
+            return await Task.Run(() =>
             {
-                _logger.LogInformation("No configuration file found. Creating default configuration.");
-                return new SyncConfiguration();
+                var result = new List<TableDefinition>();
+                try
+                {
+                    if (!File.Exists(_yamlPath))
+                    {
+                        _logger.LogMessage("YAML configuration file not found: {0}", _yamlPath);
+                        return result;
+                    }
+
+                    var deserializer = new DeserializerBuilder()
+                        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                        .Build();
+
+                    string yaml = File.ReadAllText(_yamlPath);
+                    dynamic? config = deserializer.Deserialize<dynamic>(yaml);
+
+                    if (config != null)
+                    {
+                        if (config.ContainsKey("master"))
+                        {
+                            result.AddRange(ParseTableDefinitions(config["master"]));
+                        }
+
+                        if (config.ContainsKey("transaction"))
+                        {
+                            result.AddRange(ParseTableDefinitions(config["transaction"]));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError("ConfigurationService.LoadTableDefinitionsAsync()", ex);
+                }
+
+                return result;
+            });
+        }
+
+        private List<TableDefinition> ParseTableDefinitions(dynamic? tableList)
+        {
+            var result = new List<TableDefinition>();
+
+            if (tableList is System.Collections.IEnumerable enumerable)
+            {
+                foreach (var item in enumerable)
+                {
+                    try
+                    {
+                        if (item is Dictionary<object, object> dict)
+                        {
+                            var table = new TableDefinition
+                            {
+                                Name = dict.ContainsKey("name") ? dict["name"]?.ToString() ?? "" : "",
+                                Collection = dict.ContainsKey("collection") ? dict["collection"]?.ToString() ?? "" : ""
+                            };
+
+                            if (dict.ContainsKey("fields") && dict["fields"] is System.Collections.IEnumerable fields)
+                            {
+                                foreach (var field in fields)
+                                {
+                                    if (field is Dictionary<object, object> fieldDict)
+                                    {
+                                        table.Fields.Add(new Field
+                                        {
+                                            Name = fieldDict.ContainsKey("name") ? fieldDict["name"]?.ToString() ?? "" : "",
+                                            FieldName = fieldDict.ContainsKey("field") ? fieldDict["field"]?.ToString() ?? "" : "",
+                                            Type = fieldDict.ContainsKey("type") ? fieldDict["type"]?.ToString() ?? "text" : "text"
+                                        });
+                                    }
+                                }
+                            }
+
+                            if (dict.ContainsKey("filters") && dict["filters"] is System.Collections.IEnumerable filters)
+                            {
+                                foreach (var filter in filters)
+                                {
+                                    if (filter != null)
+                                        table.Filters.Add(filter.ToString());
+                                }
+                            }
+
+                            if (dict.ContainsKey("fetch") && dict["fetch"] is System.Collections.IEnumerable fetch)
+                            {
+                                foreach (var f in fetch)
+                                {
+                                    if (f != null)
+                                        table.Fetch.Add(f.ToString());
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(table.Name))
+                                result.Add(table);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError("ParseTableDefinitions", ex);
+                    }
+                }
             }
 
-            var json = await File.ReadAllTextAsync(_configFilePath);
-            var config = JsonSerializer.Deserialize<SyncConfiguration>(json, _jsonOptions);
-            
-            _logger.LogInformation("Configuration loaded successfully. Tables configured: {Count}", 
-                config?.SelectedTables.Count ?? 0);
-            
-            return config ?? new SyncConfiguration();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error loading configuration. Using default configuration.");
-            return new SyncConfiguration();
-        }
-    }
-
-    public async Task SaveConfigurationAsync(SyncConfiguration config)
-    {
-        try
-        {
-            config.LastConfigUpdate = DateTime.UtcNow;
-            var json = JsonSerializer.Serialize(config, _jsonOptions);
-            await File.WriteAllTextAsync(_configFilePath, json);
-            
-            _logger.LogInformation("Configuration saved successfully. Tables: {Count}", 
-                config.SelectedTables.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error saving configuration");
-            throw;
+            return result;
         }
     }
 }

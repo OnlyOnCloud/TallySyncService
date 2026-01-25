@@ -1,0 +1,16 @@
+{
+  "tally": {
+    "server": "localhost",
+    "port": 9000,
+    "company": "Onlyoncloud",
+    "selectedTables": [
+      "trn_voucher",
+      "mst_ledger",
+      "mst_vouchertype"
+    ]
+  },
+  "sync": {
+    "intervalMinutes": 17,
+    "exportPath": "./exports"
+  }
+}

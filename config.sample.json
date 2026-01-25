@@ -1,0 +1,31 @@
+{
+  "database": {
+    "type": "sqlserver",
+    "server": "localhost",
+    "port": 3306,
+    "database": "tally",
+    "username": "root",
+    "password": "8759"
+  },
+  "backend": {
+    "url": "http://localhost:3000/",
+    "apiKey": "your-api-key-here",
+    "timeout": 60
+  },
+  "tally": {
+    "server": "localhost",
+    "port": 9000,
+    "company": "Sample Company Ltd.",
+    "selectedTables": [
+      "mst_ledger",
+      "mst_stock_item",
+      "trn_voucher",
+      "trn_accounting",
+      "trn_inventory"
+    ]
+  },
+  "sync": {
+    "intervalMinutes": 15,
+    "exportPath": "./exports"
+  }
+}

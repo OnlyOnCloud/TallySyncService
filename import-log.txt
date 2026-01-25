@@ -1,0 +1,15 @@
+﻿[2026-01-25 18:45:49] Starting Tally CSV Exporter (Console Mode)
+[2026-01-25 18:45:49]   Server: localhost:9000
+[2026-01-25 18:45:49]   Company: Onlyoncloud
+[2026-01-25 18:45:49]   Export Path: ./exports
+[2026-01-25 18:45:49] Tally to CSV Exporter | version: 1.0.0
+[2026-01-25 18:45:49] Loaded 19 master tables and 13 transaction tables
+[2026-01-25 18:45:49] Generating CSV files from Tally [2026-01-25 18:45:49]
+[2026-01-25 18:45:49]   Exported table: mst_ledger
+[2026-01-25 18:45:49]   mst_ledger: exported 6 rows [0.067 sec]
+[2026-01-25 18:45:49]   Exported table: mst_vouchertype
+[2026-01-25 18:45:49]   mst_vouchertype: exported 26 rows [0.047 sec]
+[2026-01-25 18:45:49]   Exported table: trn_voucher
+[2026-01-25 18:45:49]   trn_voucher: exported 2 rows [0.061 sec]
+[2026-01-25 18:45:49] Export completed successfully [2026-01-25 18:45:49]
+[2026-01-25 18:45:49] Export completed. Total rows: 34

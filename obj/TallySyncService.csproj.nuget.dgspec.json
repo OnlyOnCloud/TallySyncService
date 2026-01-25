@@ -42,21 +42,37 @@
               "target": "Package",
               "version": "[30.0.1, )"
             },
+            "Microsoft.Extensions.Configuration.Json": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
             "Microsoft.Extensions.Hosting": {
               "target": "Package",
               "version": "[8.0.1, )"
             },
             "Microsoft.Extensions.Hosting.WindowsServices": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.1, )"
             },
             "Microsoft.Extensions.Http.Polly": {
               "target": "Package",
               "version": "[8.0.0, )"
             },
+            "MySql.Data": {
+              "target": "Package",
+              "version": "[9.6.0, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
+            },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[10.0.1, )"
             },
             "Serilog.Extensions.Hosting": {
               "target": "Package",
@@ -77,6 +93,10 @@
             "System.Data.Odbc": {
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "System.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.9.0, )"
             },
             "YamlDotNet": {
               "target": "Package",

@@ -1,0 +1,7 @@
+﻿guid	name	parent	alias	description	notes	is_revenue	is_deemedpositive	opening_balance	closing_balance	mailing_name	mailing_address	mailing_state	mailing_country	mailing_pincode	email	mobile	it_pan	gstn	gst_registration_type	gst_supply_type	gst_duty_head	tax_rate	bank_account_holder	bank_account_number	bank_ifsc	bank_swift	bank_name	bank_branch	bill_credit_period
+9e3a44e6-0772-4858-98d2-d045badcf80f-0000001f	Cash	Cash-in-Hand				0	1	0	14653													0							0
+9e3a44e6-0772-4858-98d2-d045badcf80f-000000ce	New Ledger	Capital Account	NL-1			0	0	0	0	New Ledger		Telangana	India						Regular			0							0
+9e3a44e6-0772-4858-98d2-d045badcf80f-000000d0	New Ledger-1	Current Liabilities				0	0	0	0	New Ledger-1		Telangana	India						Regular			0							0
+9e3a44e6-0772-4858-98d2-d045badcf80f-000000d1	New-Ledger-123	Capital Account				0	0	0	-14653	New-Ledger-123		Telangana	India						Regular			0							0
+9e3a44e6-0772-4858-98d2-d045badcf80f-000000d2	New Ledger 2 -Xyz	Capital Account				0	0	0	0	New Ledger 2 -Xyz		Telangana	India						Regular			0							0
+9e3a44e6-0772-4858-98d2-d045badcf80f-0000001e	Profit & Loss A/c					0	0	0	0													0							0
