@@ -1,4 +1,0 @@
-﻿"guid","name","parent","category","alias","description","notes","part_number","uom","alternate_uom",conversion,opening_balance,opening_rate,opening_value,closing_balance,closing_rate,closing_value,"costing_method","gst_type_of_supply","gst_hsn_code","gst_hsn_description",gst_rate,"gst_taxability"
-"9e3a44e6-0772-4858-98d2-d045badcf80f-000000d7","Stock Item -1","","","","","","","","",0,0,0,0,0,0,0,"Default","Goods","","",0,""
-"9e3a44e6-0772-4858-98d2-d045badcf80f-000000d8","Stock Item-2","","","","","","","","",0,0,0,0,0,0,0,"Default","Goods","","",0,""
-"9e3a44e6-0772-4858-98d2-d045badcf80f-000000d9","Stock-Item-3","","","","","","","","",0,0,0,0,0,0,0,"Default","Goods","","",0,""
