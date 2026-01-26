@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using System.Text.Json;
 using TallySyncService.Models;
 using TallySyncService.Services;
 
@@ -12,315 +6,302 @@ class Program
 {
     static async Task Main(string[] args)
     {
+        Console.WriteLine("╔═══════════════════════════════════════════════╗");
+        Console.WriteLine("║   Tally CSV Export Service                    ║");
+        Console.WriteLine("║   Export Tally data to CSV format             ║");
+        Console.WriteLine("╚═══════════════════════════════════════════════╝");
+        Console.WriteLine();
+
         try
         {
-            // Check for command-line arguments
-            if (args.Length > 0)
+            // Load configuration
+            var config = LoadConfig();
+            
+            // Initialize services
+            var tallyXmlService = new TallyXmlService(config);
+            var xmlGenerator = new XmlGenerator();
+            var exporter = new TallyDataExporter(tallyXmlService, xmlGenerator, config);
+            var yamlLoader = new YamlConfigLoader(config.DefinitionFile);
+
+            // Test Tally connection
+            Console.WriteLine("Testing connection to Tally...");
+            if (!await tallyXmlService.TestConnectionAsync())
             {
-                switch (args[0].ToLower())
-                {
-                    case "--setup":
-                        await RunSetup();
-                        return;
-                    case "--install":
-                        InstallWindowsService();
-                        return;
-                    case "--uninstall":
-                        UninstallWindowsService();
-                        return;
-                    case "--debug":
-                        await RunConsoleMode();
-                        return;
-                    default:
-                        ShowHelp();
-                        return;
-                }
+                Console.WriteLine("✗ Unable to connect to Tally.");
+                Console.WriteLine($"  Please ensure Tally is running at {config.Server}:{config.Port}");
+                Console.WriteLine("  and XML/HTTP interface is enabled (F12 > Configure > Enable)");
+                return;
+            }
+            Console.WriteLine($"✓ Connected to Tally at {config.Server}:{config.Port}");
+            Console.WriteLine();
+
+            // Load YAML configuration
+            Console.WriteLine("Loading table definitions...");
+            await yamlLoader.LoadAsync();
+            Console.WriteLine($"✓ Loaded {yamlLoader.GetAllTables().Count} table definitions");
+            Console.WriteLine();
+
+            // Get company list
+            var companies = await tallyXmlService.GetCompanyListAsync();
+            if (companies.Count == 0)
+            {
+                Console.WriteLine("✗ No companies found in Tally.");
+                return;
             }
 
-            // Default: Run as Windows Service
-            await RunAsWindowsService();
+            // Select company
+            var selectedCompany = await SelectCompanyAsync(companies, config);
+            if (selectedCompany == null)
+            {
+                Console.WriteLine("No company selected. Exiting.");
+                return;
+            }
+
+            config.Company = selectedCompany.Name;
+            Console.WriteLine($"✓ Selected company: {selectedCompany.Name}");
+            Console.WriteLine();
+
+            // Select tables
+            var selectedTables = await SelectTablesAsync(yamlLoader);
+            if (selectedTables.Count == 0)
+            {
+                Console.WriteLine("No tables selected. Exiting.");
+                return;
+            }
+
+            Console.WriteLine($"✓ Selected {selectedTables.Count} table(s) for export");
+            Console.WriteLine();
+
+            // Set output directory
+            var outputDir = GetOutputDirectory(config);
+            Console.WriteLine($"Export directory: {outputDir}");
+            Console.WriteLine();
+
+            // Perform export
+            Console.WriteLine("Starting export...");
+            Console.WriteLine("─────────────────────────────────────────────────");
+            
+            var exportedFiles = await exporter.ExportMultipleTablesToCsvAsync(selectedTables, outputDir);
+
+            Console.WriteLine("─────────────────────────────────────────────────");
+            Console.WriteLine();
+            Console.WriteLine($"✓ Export completed successfully!");
+            Console.WriteLine($"  Exported {exportedFiles.Count} file(s) to: {outputDir}");
+            Console.WriteLine();
+
+            // List exported files
+            Console.WriteLine("Exported files:");
+            foreach (var file in exportedFiles)
+            {
+                var fileInfo = new FileInfo(file);
+                Console.WriteLine($"  • {Path.GetFileName(file)} ({FormatFileSize(fileInfo.Length)})");
+            }
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Fatal error: {ex.Message}");
-            Console.Error.WriteLine($"Stack Trace: {ex.StackTrace}");
-            Environment.Exit(1);
+            Console.WriteLine();
+            Console.WriteLine($"✗ Error: {ex.Message}");
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"  Details: {ex.InnerException.Message}");
+            }
         }
+
+        Console.WriteLine();
+        Console.WriteLine("Press any key to exit...");
+        Console.ReadKey();
     }
 
-    static async Task RunSetup()
+    static TallyConfig LoadConfig()
     {
-        var logger = new FileLogger(".");
-        var configService = new ConfigurationService(logger);
-
-        // Load existing config for server/port defaults
-        var existingConfig = await configService.LoadConfigurationAsync();
+        var configPath = "config.json";
         
-        var tallyService = new TallyService(
-            existingConfig.Tally.Server,
-            existingConfig.Tally.Port,
-            "",
-            logger
-        );
+        if (!File.Exists(configPath))
+        {
+            Console.WriteLine($"Configuration file not found: {configPath}");
+            Console.WriteLine("Using default configuration.");
+            return new TallyConfig();
+        }
 
-        var setupService = new SetupService(tallyService, logger, configService);
-        await setupService.RunInteractiveSetupAsync();
-
-        logger.Close();
-    }
-
-    static async Task RunConsoleMode()
-    {
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("config.json", optional: false, reloadOnChange: false)
-            .Build();
-
-        var appConfig = new AppConfiguration();
-        configuration.GetSection("tally").Bind(appConfig.Tally);
-        configuration.GetSection("sync").Bind(appConfig.Sync);
-
-        var logger = new FileLogger(".");
-        var tallyService = new TallyService(appConfig.Tally.Server, appConfig.Tally.Port, appConfig.Tally.Company, logger);
-        var csvExporter = new CsvExporter(tallyService, logger, "./csv");
-        var syncService = new TallySyncServiceImpl(tallyService, csvExporter, logger, appConfig);
-
-        logger.LogMessage("Starting Tally CSV Exporter (Console Mode)");
-        logger.LogMessage("  Server: {0}:{1}", appConfig.Tally.Server, appConfig.Tally.Port);
-        logger.LogMessage("  Company: {0}", appConfig.Tally.Company ?? "All");
-        logger.LogMessage("  Export Path: {0}", appConfig.Sync.ExportPath);
-
-        int rowCount = await syncService.PerformFullSyncAsync();
-        logger.LogMessage("Export completed. Total rows: {0}", rowCount);
-
-        logger.Close();
-    }
-
-    static async Task RunAsWindowsService()
-    {
-        var host = Host.CreateDefaultBuilder()
-            .UseWindowsService()
-            .ConfigureServices((context, services) =>
+        try
+        {
+            var json = File.ReadAllText(configPath);
+            var configData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json);
+            
+            var config = new TallyConfig();
+            
+            if (configData != null && configData.ContainsKey("tally"))
             {
-                // Load configuration
-                var configuration = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("config.json", optional: false, reloadOnChange: false)
-                    .Build();
-
-                var appConfig = new AppConfiguration();
-                configuration.GetSection("tally").Bind(appConfig.Tally);
-                configuration.GetSection("sync").Bind(appConfig.Sync);
-
-                // Register services
-                services.AddSingleton<TallySyncService.Services.ILogger>(sp => new FileLogger("."));
+                var tallyConfig = configData["tally"];
                 
-                services.AddSingleton<ITallyService>(sp =>
-                    new TallyService(
-                        appConfig.Tally.Server,
-                        appConfig.Tally.Port,
-                        appConfig.Tally.Company,
-                        sp.GetRequiredService<TallySyncService.Services.ILogger>()
-                    )
-                );
-
-                services.AddSingleton<ICsvExporter>(sp =>
-                    new CsvExporter(
-                        sp.GetRequiredService<ITallyService>(),
-                        sp.GetRequiredService<TallySyncService.Services.ILogger>(),
-                        "./csv"
-                    )
-                );
-
-                services.AddSingleton<ITallySyncService>(sp =>
-                    new TallySyncServiceImpl(
-                        sp.GetRequiredService<ITallyService>(),
-                        sp.GetRequiredService<ICsvExporter>(),
-                        sp.GetRequiredService<TallySyncService.Services.ILogger>(),
-                        appConfig
-                    )
-                );
-
-                services.AddSingleton(sp => appConfig);
-
-                // Add background service
-                services.AddHostedService(sp =>
-                    new TallySyncService.SyncWorker(
-                        sp.GetRequiredService<ITallySyncService>(),
-                        sp.GetRequiredService<TallySyncService.Services.ILogger>(),
-                        appConfig.Sync.IntervalMinutes
-                    )
-                );
-            })
-            .Build();
-
-        await host.RunAsync();
-    }
-
-    static void InstallWindowsService()
-    {
-        try
-        {
-            string serviceName = "TallySyncService";
-            string displayName = "Tally CSV Exporter Service";
-
-            Console.WriteLine("Installing Windows Service...");
-            Console.WriteLine($"Service Name: {serviceName}");
-            Console.WriteLine($"Display Name: {displayName}");
-
-            // Get the current executable path
-            string exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName ?? "";
-            
-            // Check if service already exists
-            bool serviceExists = ServiceExists(serviceName);
-
-            if (serviceExists)
-            {
-                Console.WriteLine("Service already exists. Uninstalling first...");
-                UninstallWindowsService();
+                if (tallyConfig.TryGetProperty("server", out var server))
+                    config.Server = server.GetString() ?? "localhost";
+                
+                if (tallyConfig.TryGetProperty("port", out var port))
+                    config.Port = port.GetInt32();
+                
+                if (tallyConfig.TryGetProperty("company", out var company))
+                    config.Company = company.GetString() ?? "";
             }
 
-            // Create the service using sc.exe
-            string command = $"create {serviceName} binPath=\"{exePath}\" DisplayName=\"{displayName}\" start=auto";
-            
-            var psi = new System.Diagnostics.ProcessStartInfo
+            if (configData != null && configData.ContainsKey("sync"))
             {
-                FileName = "sc.exe",
-                Arguments = command,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true
-            };
-
-            using (var process = System.Diagnostics.Process.Start(psi))
-            {
-                process?.WaitForExit();
-                if (process?.ExitCode == 0)
+                var syncConfig = configData["sync"];
+                
+                if (syncConfig.TryGetProperty("exportPath", out var exportPath))
                 {
-                    Console.WriteLine("✓ Service installed successfully!");
-                    Console.WriteLine("You can now:");
-                    Console.WriteLine("  1. Start the service: net start TallySyncService");
-                    Console.WriteLine("  2. Stop the service:  net stop TallySyncService");
-                    Console.WriteLine("  3. Run setup:         TallySyncService.exe --setup");
-                }
-                else
-                {
-                    Console.WriteLine("✗ Failed to install service. Run as Administrator.");
+                    var path = exportPath.GetString();
+                    if (!string.IsNullOrEmpty(path))
+                    {
+                        // Store in a way we can use later
+                        Environment.SetEnvironmentVariable("TALLY_EXPORT_PATH", path);
+                    }
                 }
             }
+
+            return config;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"✗ Error installing service: {ex.Message}");
+            Console.WriteLine($"Error loading config: {ex.Message}");
+            return new TallyConfig();
         }
     }
 
-    static void UninstallWindowsService()
+    static async Task<CompanyInfo?> SelectCompanyAsync(List<CompanyInfo> companies, TallyConfig config)
     {
-        try
+        // If company is already specified in config, use it
+        if (!string.IsNullOrEmpty(config.Company))
         {
-            string serviceName = "TallySyncService";
-
-            Console.WriteLine("Uninstalling Windows Service...");
-
-            // Stop the service first
-            var stopPsi = new System.Diagnostics.ProcessStartInfo
+            var existing = companies.FirstOrDefault(c => 
+                c.Name.Equals(config.Company, StringComparison.OrdinalIgnoreCase));
+            if (existing != null)
             {
-                FileName = "net.exe",
-                Arguments = $"stop {serviceName}",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true
-            };
-
-            using (var stopProcess = System.Diagnostics.Process.Start(stopPsi))
-            {
-                stopProcess?.WaitForExit();
+                return existing;
             }
+        }
 
-            // Delete the service
-            var deletePsi = new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = "sc.exe",
-                Arguments = $"delete {serviceName}",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true
-            };
+        Console.WriteLine("Available Companies:");
+        Console.WriteLine("─────────────────────────────────────────────────");
+        for (int i = 0; i < companies.Count; i++)
+        {
+            Console.WriteLine($"  {i + 1}. {companies[i].Name}");
+        }
+        Console.WriteLine("─────────────────────────────────────────────────");
+        Console.Write("Select company number (or 0 to exit): ");
 
-            using (var deleteProcess = System.Diagnostics.Process.Start(deletePsi))
+        if (int.TryParse(Console.ReadLine(), out var selection))
+        {
+            if (selection == 0) return null;
+            if (selection > 0 && selection <= companies.Count)
             {
-                deleteProcess?.WaitForExit();
-                if (deleteProcess?.ExitCode == 0)
+                return companies[selection - 1];
+            }
+        }
+
+        Console.WriteLine("Invalid selection.");
+        return await SelectCompanyAsync(companies, config);
+    }
+
+    static async Task<List<TableDefinition>> SelectTablesAsync(YamlConfigLoader yamlLoader)
+    {
+        Console.WriteLine("Table Categories:");
+        Console.WriteLine("─────────────────────────────────────────────────");
+        Console.WriteLine("  1. Master Tables (Ledgers, Items, Groups, etc.)");
+        Console.WriteLine("  2. Transaction Tables (Vouchers, Accounting, Inventory)");
+        Console.WriteLine("  3. All Tables");
+        Console.WriteLine("  4. Select Specific Tables");
+        Console.WriteLine("─────────────────────────────────────────────────");
+        Console.Write("Select option: ");
+
+        var option = Console.ReadLine();
+
+        return option switch
+        {
+            "1" => yamlLoader.GetMasterTables(),
+            "2" => yamlLoader.GetTransactionTables(),
+            "3" => yamlLoader.GetAllTables(),
+            "4" => await SelectSpecificTablesAsync(yamlLoader),
+            _ => new List<TableDefinition>()
+        };
+    }
+
+    static Task<List<TableDefinition>> SelectSpecificTablesAsync(YamlConfigLoader yamlLoader)
+    {
+        var allTables = yamlLoader.GetAllTables();
+        var selectedTables = new List<TableDefinition>();
+
+        Console.WriteLine();
+        Console.WriteLine("Available Tables:");
+        Console.WriteLine("─────────────────────────────────────────────────");
+        
+        var masterTables = yamlLoader.GetMasterTables();
+        var transactionTables = yamlLoader.GetTransactionTables();
+
+        Console.WriteLine("Master Tables:");
+        for (int i = 0; i < masterTables.Count; i++)
+        {
+            Console.WriteLine($"  {i + 1}. {masterTables[i].Name}");
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Transaction Tables:");
+        for (int i = 0; i < transactionTables.Count; i++)
+        {
+            Console.WriteLine($"  {masterTables.Count + i + 1}. {transactionTables[i].Name}");
+        }
+
+        Console.WriteLine("─────────────────────────────────────────────────");
+        Console.WriteLine("Enter table numbers separated by commas (e.g., 1,3,5)");
+        Console.WriteLine("or 'all' for all tables:");
+        Console.Write("> ");
+
+        var input = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(input))
+            return Task.FromResult(selectedTables);
+
+        if (input.Trim().ToLower() == "all")
+            return Task.FromResult(allTables);
+
+        var numbers = input.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        foreach (var numStr in numbers)
+        {
+            if (int.TryParse(numStr.Trim(), out var num))
+            {
+                if (num > 0 && num <= allTables.Count)
                 {
-                    Console.WriteLine("✓ Service uninstalled successfully!");
-                }
-                else
-                {
-                    Console.WriteLine("✗ Failed to uninstall service. Run as Administrator.");
+                    selectedTables.Add(allTables[num - 1]);
                 }
             }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"✗ Error uninstalling service: {ex.Message}");
-        }
+
+        return Task.FromResult(selectedTables);
     }
 
-    static bool ServiceExists(string serviceName)
+    static string GetOutputDirectory(TallyConfig config)
     {
-        try
-        {
-            var psi = new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = "sc.exe",
-                Arguments = $"query {serviceName}",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true
-            };
-
-            using (var process = System.Diagnostics.Process.Start(psi))
-            {
-                process?.WaitForExit();
-                return process?.ExitCode == 0;
-            }
-        }
-        catch
-        {
-            return false;
-        }
+        var envPath = Environment.GetEnvironmentVariable("TALLY_EXPORT_PATH");
+        var basePath = !string.IsNullOrEmpty(envPath) ? envPath : "./csv";
+        
+        var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HHmmss");
+        var companyName = string.IsNullOrEmpty(config.Company) 
+            ? "export" 
+            : config.Company.Replace(" ", "_");
+        
+        var outputDir = Path.Combine(basePath, $"{companyName}_{timestamp}");
+        return Path.GetFullPath(outputDir);
     }
 
-    static void ShowHelp()
+    static string FormatFileSize(long bytes)
     {
-        Console.WriteLine();
-        Console.WriteLine("═══════════════════════════════════════════════════════");
-        Console.WriteLine("  TALLY CSV EXPORTER - Windows Service");
-        Console.WriteLine("═══════════════════════════════════════════════════════");
-        Console.WriteLine();
-        Console.WriteLine("Usage:");
-        Console.WriteLine("  TallySyncService.exe [command]");
-        Console.WriteLine();
-        Console.WriteLine("Commands:");
-        Console.WriteLine("  (no args)      Run as Windows Service (default)");
-        Console.WriteLine("  --setup        Interactive setup wizard");
-        Console.WriteLine("  --install      Install as Windows Service");
-        Console.WriteLine("  --uninstall    Uninstall Windows Service");
-        Console.WriteLine("  --debug        Run in console mode (for testing)");
-        Console.WriteLine("  --help         Show this help message");
-        Console.WriteLine();
-        Console.WriteLine("Examples:");
-        Console.WriteLine("  TallySyncService.exe --setup");
-        Console.WriteLine("    Run interactive setup to configure company and tables");
-        Console.WriteLine();
-        Console.WriteLine("  TallySyncService.exe --install");
-        Console.WriteLine("    Install as Windows Service (run as Administrator)");
-        Console.WriteLine();
-        Console.WriteLine("  net start TallySyncService");
-        Console.WriteLine("    Start the Windows Service");
-        Console.WriteLine();
-        Console.WriteLine("═══════════════════════════════════════════════════════");
-        Console.WriteLine();
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        double len = bytes;
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
     }
 }

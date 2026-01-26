@@ -8,7 +8,7 @@
     "password": "8759"
   },
   "backend": {
-    "url": "http://localhost:3000/",
+    "url": "http://localhost:8080/",
     "apiKey": "your-api-key-here",
     "timeout": 60
   },

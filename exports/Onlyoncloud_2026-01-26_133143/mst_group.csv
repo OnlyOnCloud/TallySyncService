@@ -1,0 +1,30 @@
+﻿"guid","name","parent","primary_group",is_revenue,is_deemedpositive,is_reserved,affects_gross_profit,sort_position
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000016","Bank Accounts","Current Assets","Bank Accounts",0,1,1,0,220
+"9e3a44e6-0772-4858-98d2-d045badcf80f-0000000b","Bank OD A/c","Loans (Liability)","Bank OD A/c",0,0,1,0,110
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000007","Branch / Divisions","","Branch / Divisions",0,0,1,0,70
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000001","Capital Account","","Capital Account",0,0,1,0,10
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000015","Cash-in-Hand","Current Assets","Cash-in-Hand",0,1,1,0,210
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000006","Current Assets","","Current Assets",0,1,1,0,60
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000003","Current Liabilities","","Current Liabilities",0,0,1,0,30
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000012","Deposits (Asset)","Current Assets","Deposits (Asset)",0,1,1,0,180
+"9e3a44e6-0772-4858-98d2-d045badcf80f-0000001a","Direct Expenses","","Direct Expenses",1,1,1,1,260
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000019","Direct Incomes","","Direct Incomes",1,0,1,1,250
+"9e3a44e6-0772-4858-98d2-d045badcf80f-0000000e","Duties & Taxes","Current Liabilities","Duties & Taxes",0,0,1,0,140
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000004","Fixed Assets","","Fixed Assets",0,1,1,0,40
+"9e3a44e6-0772-4858-98d2-d045badcf80f-000000cf","Group1","Capital Account","Capital Account",0,0,0,0,500
+"9e3a44e6-0772-4858-98d2-d045badcf80f-0000001c","Indirect Expenses","","Indirect Expenses",1,1,1,0,280
+"9e3a44e6-0772-4858-98d2-d045badcf80f-0000001b","Indirect Incomes","","Indirect Incomes",1,0,1,0,270
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000005","Investments","","Investments",0,1,1,0,50
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000013","Loans & Advances (Asset)","Current Assets","Loans & Advances (Asset)",0,1,1,0,190
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000002","Loans (Liability)","","Loans (Liability)",0,0,1,0,20
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000008","Misc. Expenses (ASSET)","","Misc. Expenses (ASSET)",0,1,1,0,80
+"9e3a44e6-0772-4858-98d2-d045badcf80f-0000000f","Provisions","Current Liabilities","Provisions",0,0,1,0,150
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000018","Purchase Accounts","","Purchase Accounts",1,1,1,1,240
+"9e3a44e6-0772-4858-98d2-d045badcf80f-0000000a","Reserves & Surplus","Capital Account","Reserves & Surplus",0,0,1,0,100
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000017","Sales Accounts","","Sales Accounts",1,0,1,1,230
+"9e3a44e6-0772-4858-98d2-d045badcf80f-0000000c","Secured Loans","Loans (Liability)","Secured Loans",0,0,1,0,120
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000011","Stock-in-Hand","Current Assets","Stock-in-Hand",0,1,1,0,170
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000010","Sundry Creditors","Current Liabilities","Sundry Creditors",0,0,1,0,160
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000014","Sundry Debtors","Current Assets","Sundry Debtors",0,1,1,0,200
+"9e3a44e6-0772-4858-98d2-d045badcf80f-00000009","Suspense A/c","","Suspense A/c",0,0,1,0,90
+"9e3a44e6-0772-4858-98d2-d045badcf80f-0000000d","Unsecured Loans","Loans (Liability)","Unsecured Loans",0,0,1,0,130
