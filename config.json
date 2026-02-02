@@ -9,6 +9,6 @@
     "exportPath": "./exports"
   },
   "backend": {
-    "url": "http://localhost:3001/api/data"
+    "url": "https://dhub-backend-dev.onlyoncloud.com/api/data"
   }
 }
