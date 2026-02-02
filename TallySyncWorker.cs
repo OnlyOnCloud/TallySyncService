@@ -9,13 +9,17 @@ public class TallySyncWorker : BackgroundService
     private readonly TallyConfig _config;
     private readonly int _intervalMinutes;
     private readonly string _backendUrl;
+    private readonly string _tableMode;
+    private readonly List<string> _customTables;
 
     public TallySyncWorker()
     {
-        var (tallyConfig, intervalMinutes, backendUrl) = LoadConfiguration();
+        var (tallyConfig, intervalMinutes, backendUrl, tableMode, customTables) = LoadConfiguration();
         _config = tallyConfig;
         _intervalMinutes = intervalMinutes;
         _backendUrl = backendUrl;
+        _tableMode = tableMode;
+        _customTables = customTables;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -70,8 +74,8 @@ public class TallySyncWorker : BackgroundService
 
             // Load table definitions
             await yamlLoader.LoadAsync();
-            var allTables = yamlLoader.GetAllTables();
-            Console.WriteLine($"✓ Loaded {allTables.Count} table definitions");
+            var allTables = GetTablesToExport(yamlLoader);
+            Console.WriteLine($"✓ Loaded {allTables.Count} table(s) to export (mode: {_tableMode})");
 
             // Get company
             var companies = await tallyXmlService.GetCompanyListAsync();
@@ -140,17 +144,32 @@ public class TallySyncWorker : BackgroundService
         }
     }
 
-    private (TallyConfig, int, string) LoadConfiguration()
+    private List<TableDefinition> GetTablesToExport(YamlConfigLoader yamlLoader)
+    {
+        return _tableMode switch
+        {
+            "master" => yamlLoader.GetMasterTables(),
+            "transaction" => yamlLoader.GetTransactionTables(),
+            "custom" => _customTables.Count > 0 
+                ? yamlLoader.GetTablesByNames(_customTables) 
+                : yamlLoader.GetAllTables(),
+            _ => yamlLoader.GetAllTables()
+        };
+    }
+
+    private (TallyConfig, int, string, string, List<string>) LoadConfiguration()
     {
         var configPath = "config.json";
         var tallyConfig = new TallyConfig();
         var intervalMinutes = 15;
         var backendUrl = "http://localhost:3001/api/data";
+        var tableMode = "all";
+        var customTables = new List<string>();
         
         if (!File.Exists(configPath))
         {
             Console.WriteLine("⚠️  config.json not found, using defaults");
-            return (tallyConfig, intervalMinutes, backendUrl);
+            return (tallyConfig, intervalMinutes, backendUrl, tableMode, customTables);
         }
 
         try
@@ -192,14 +211,28 @@ public class TallySyncWorker : BackgroundService
                     if (backend.TryGetProperty("url", out var url))
                         backendUrl = url.GetString() ?? backendUrl;
                 }
+
+                // Load table selection configuration
+                if (configData.ContainsKey("tables"))
+                {
+                    var tables = configData["tables"];
+                    
+                    if (tables.TryGetProperty("mode", out var mode))
+                        tableMode = mode.GetString() ?? "all";
+                    
+                    if (tables.TryGetProperty("customTables", out var custom))
+                    {
+                        customTables = System.Text.Json.JsonSerializer.Deserialize<List<string>>(custom.GetRawText()) ?? new List<string>();
+                    }
+                }
             }
 
-            return (tallyConfig, intervalMinutes, backendUrl);
+            return (tallyConfig, intervalMinutes, backendUrl, tableMode, customTables);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"⚠️  Error loading config: {ex.Message}, using defaults");
-            return (tallyConfig, intervalMinutes, backendUrl);
+            return (tallyConfig, intervalMinutes, backendUrl, tableMode, customTables);
         }
     }
 }

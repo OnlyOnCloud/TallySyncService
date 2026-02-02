@@ -10,5 +10,9 @@
   },
   "backend": {
     "url": "https://dhub-backend-dev.onlyoncloud.com/api/data"
+  },
+  "tables": {
+    "mode": "all",
+    "customTables": []
   }
 }

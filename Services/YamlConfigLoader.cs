@@ -59,4 +59,29 @@ public class YamlConfigLoader
         return GetAllTables().FirstOrDefault(t => 
             t.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase));
     }
+
+    public List<TableDefinition> GetTablesByNames(List<string> tableNames)
+    {
+        if (_config == null)
+            throw new InvalidOperationException("Configuration not loaded. Call LoadAsync() first.");
+        
+        var allTables = GetAllTables();
+        return allTables.Where(t => 
+            tableNames.Any(name => name.Equals(t.Name, StringComparison.OrdinalIgnoreCase))
+        ).ToList();
+    }
+
+    public List<string> GetAllTableNames()
+    {
+        return GetAllTables().Select(t => t.Name).ToList();
+    }
+
+    public Dictionary<string, List<string>> GetTableNamesByCategory()
+    {
+        return new Dictionary<string, List<string>>
+        {
+            { "Master", GetMasterTables().Select(t => t.Name).ToList() },
+            { "Transaction", GetTransactionTables().Select(t => t.Name).ToList() }
+        };
+    }
 }
