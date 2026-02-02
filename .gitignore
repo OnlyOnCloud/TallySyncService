@@ -35,5 +35,5 @@ msbuild.wrn
 .vs/
 
 *.md
-
+*.csv
 tally-database-loader/
