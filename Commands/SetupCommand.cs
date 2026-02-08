@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Runtime.InteropServices;
 using TallySyncService.Models;
 using TallySyncService.Services;
 
@@ -28,11 +29,33 @@ public class SetupCommand
         Console.Write("Company Name (leave empty to select at runtime): ");
         var company = Console.ReadLine() ?? "";
 
+        // Platform-specific default Tally path
+        string defaultTallyPath;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            defaultTallyPath = "C:\\Program Files (x86)\\Tally.ERP 9\\tally.exe";
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            var homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            defaultTallyPath = $"{homeDir}/.wine/drive_c/Program Files/TallyPrime (3)/tally.exe";
+        }
+        else
+        {
+            defaultTallyPath = "";
+        }
+
+        Console.Write($"Tally Executable Path [{defaultTallyPath}]: ");
+        var tallyPath = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(tallyPath)) 
+            tallyPath = defaultTallyPath;
+
         config["tally"] = new Dictionary<string, object>
         {
             { "server", server },
             { "port", port },
-            { "company", company }
+            { "company", company },
+            { "tallyPath", tallyPath }
         };
 
         // Sync Configuration
@@ -70,7 +93,8 @@ public class SetupCommand
         {
             Server = server,
             Port = port,
-            Company = company
+            Company = company,
+            TallyPath = tallyPath
         };
 
         // Table Selection Configuration

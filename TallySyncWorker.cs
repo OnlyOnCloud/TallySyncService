@@ -68,9 +68,48 @@ public class TallySyncWorker : BackgroundService
             if (!await tallyXmlService.TestConnectionAsync())
             {
                 Console.WriteLine($"✗ Unable to connect to Tally at {_config.Server}:{_config.Port}");
-                return;
+                
+                // Try to auto-start Tally
+                Console.WriteLine("\n🔄 Attempting to start Tally automatically...");
+                
+                var notificationService = new NotificationService();
+                var tallyProcessService = new TallyProcessService(_config.TallyPath);
+                
+                // Send notification
+                notificationService.SendNotification(
+                    "Tally Sync Service",
+                    "Tally server not running. Please select the company within 15 seconds to complete the sync."
+                );
+                Console.WriteLine("📢 Notification sent to user");
+                
+                // Launch Tally if not already running
+                 
+                    if (!tallyProcessService.LaunchTally())
+                    {
+                        Console.WriteLine("✗ Failed to launch Tally. Skipping this sync cycle.");
+                        return;
+                    }
+                 
+                
+                // Wait 15 seconds for user to select company
+                Console.WriteLine("⏱️  Waiting 15 seconds for user to select company...");
+                await Task.Delay(TimeSpan.FromSeconds(15));
+                
+                // Test connection again
+                Console.WriteLine("Testing connection to Tally again...");
+                if (!await tallyXmlService.TestConnectionAsync())
+                {
+                    Console.WriteLine($"✗ Still unable to connect to Tally. Skipping this sync cycle.");
+                    Console.WriteLine($"   Will retry in {_intervalMinutes} minutes.");
+                    return;
+                }
+                
+                Console.WriteLine("✓ Successfully connected to Tally after auto-start");
             }
-            Console.WriteLine($"✓ Connected to Tally");
+            else
+            {
+                Console.WriteLine($"✓ Connected to Tally");
+            }
 
             // Load table definitions
             await yamlLoader.LoadAsync();
@@ -192,6 +231,9 @@ public class TallySyncWorker : BackgroundService
                     
                     if (tally.TryGetProperty("company", out var company))
                         tallyConfig.Company = company.GetString() ?? "";
+                    
+                    if (tally.TryGetProperty("tallyPath", out var tallyPath))
+                        tallyConfig.TallyPath = tallyPath.GetString() ?? "";
                 }
 
                 // Load sync configuration

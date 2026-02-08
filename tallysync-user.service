@@ -1,0 +1,19 @@
+[Unit]
+Description=Tally Sync Service - Auto sync Tally data to backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Documents/work/onlyoncloud/TallySyncService
+ExecStart=/usr/bin/dotnet run --project %h/Documents/work/onlyoncloud/TallySyncService/TallySyncService.csproj
+Restart=on-failure
+RestartSec=30
+StandardOutput=append:%h/.local/share/tallysync/output.log
+StandardError=append:%h/.local/share/tallysync/error.log
+
+# Environment variables (if needed)
+Environment="DOTNET_CLI_TELEMETRY_OPTOUT=1"
+
+[Install]
+WantedBy=default.target

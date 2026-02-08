@@ -2,7 +2,8 @@
   "tally": {
     "server": "localhost",
     "port": 9000,
-    "company": ""
+    "company": "",
+    "tallyPath": "/home/achiket/.wine/drive_c/Program Files/TallyPrime (3)/tally.exe"
   },
   "sync": {
     "intervalMinutes": 15,
