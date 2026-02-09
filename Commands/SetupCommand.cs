@@ -1,5 +1,7 @@
 using System.Text.Json;
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TallySyncService.Models;
 using TallySyncService.Services;
 
@@ -13,8 +15,6 @@ public class SetupCommand
         Console.WriteLine("║   Tally Sync Service - Setup                  ║");
         Console.WriteLine("╚═══════════════════════════════════════════════╝");
         Console.WriteLine();
-
-        var config = new Dictionary<string, object>();
 
         // Tally Configuration
         Console.WriteLine("=== Tally Configuration ===");
@@ -50,14 +50,6 @@ public class SetupCommand
         if (string.IsNullOrWhiteSpace(tallyPath)) 
             tallyPath = defaultTallyPath;
 
-        config["tally"] = new Dictionary<string, object>
-        {
-            { "server", server },
-            { "port", port },
-            { "company", company },
-            { "tallyPath", tallyPath }
-        };
-
         // Sync Configuration
         Console.WriteLine("\n=== Sync Configuration ===");
         Console.Write("Sync Interval (minutes) [15]: ");
@@ -68,12 +60,6 @@ public class SetupCommand
         var exportPath = Console.ReadLine();
         if (string.IsNullOrWhiteSpace(exportPath)) exportPath = "./exports";
 
-        config["sync"] = new Dictionary<string, object>
-        {
-            { "intervalMinutes", interval },
-            { "exportPath", exportPath }
-        };
-
         // Backend Configuration
         Console.WriteLine("\n=== Backend Configuration ===");
         Console.Write("Backend Base URL (e.g., http://localhost:3001): ");
@@ -82,11 +68,6 @@ public class SetupCommand
         
         // Remove trailing slash if present
         backendBaseUrl = backendBaseUrl.TrimEnd('/');
-
-        config["backend"] = new Dictionary<string, object>
-        {
-            { "url", $"{backendBaseUrl}/api/data" }
-        };
 
         // Create TallyConfig for use in custom table selection
         var tallyConfig = new TallyConfig
@@ -137,24 +118,67 @@ public class SetupCommand
                 break;
         }
 
-        config["tables"] = new Dictionary<string, object>
+        // Read existing appsettings.json to preserve Serilog configuration
+        var appSettings = new Dictionary<string, object>();
+        if (File.Exists("appsettings.json"))
         {
-            { "mode", tableMode },
-            { "customTables", customTables }
+            var existingJson = await File.ReadAllTextAsync("appsettings.json");
+            var existing = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(existingJson);
+            if (existing != null && existing.ContainsKey("Serilog"))
+            {
+                appSettings["Serilog"] = JsonSerializer.Deserialize<object>(existing["Serilog"].GetRawText())!;
+            }
+        }
+
+        // Build new configuration structure
+        appSettings["Tally"] = new Dictionary<string, object>
+        {
+            { "Server", server },
+            { "Port", port },
+            { "Company", company },
+            { "TallyPath", tallyPath },
+            { "TimeoutSeconds", 60 },
+            { "DefinitionFile", "tally-export-config.yaml" }
+        };
+
+        appSettings["Sync"] = new Dictionary<string, object>
+        {
+            { "IntervalMinutes", interval },
+            { "ExportPath", exportPath }
+        };
+
+        appSettings["Backend"] = new Dictionary<string, object>
+        {
+            { "Url", $"{backendBaseUrl}/api/data" }
+        };
+
+        appSettings["Tables"] = new Dictionary<string, object>
+        {
+            { "Mode", tableMode },
+            { "CustomTables", customTables }
         };
 
         // Save configuration
         var options = new JsonSerializerOptions { WriteIndented = true };
-        var json = JsonSerializer.Serialize(config, options);
-        await File.WriteAllTextAsync("config.json", json);
+        var json = JsonSerializer.Serialize(appSettings, options);
+        await File.WriteAllTextAsync("appsettings.json", json);
 
-        Console.WriteLine("\n✅ Configuration saved to config.json");
+        Console.WriteLine("\n✅ Configuration saved to appsettings.json");
         Console.WriteLine();
 
         // Test Tally connection
         Console.WriteLine("Testing Tally connection...");
 
-        var tallyService = new TallyXmlService(tallyConfig);
+        // Create temporary service collection for testing
+        var services = new ServiceCollection();
+        services.AddHttpClient();
+        services.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Warning));
+        var serviceProvider = services.BuildServiceProvider();
+
+        var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+        var logger = serviceProvider.GetRequiredService<ILogger<TallyXmlService>>();
+        var tallyService = new TallyXmlService(tallyConfig, httpClientFactory, logger);
+        
         try
         {
             var connected = await tallyService.TestConnectionAsync();

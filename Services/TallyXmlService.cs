@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.Extensions.Logging;
 using TallySyncService.Models;
 
 namespace TallySyncService.Services;
@@ -6,25 +7,27 @@ namespace TallySyncService.Services;
 public class TallyXmlService
 {
     private readonly TallyConfig _config;
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger _logger;
 
-    public TallyXmlService(TallyConfig config)
+    public TallyXmlService(TallyConfig config, IHttpClientFactory httpClientFactory, ILogger logger)
     {
         _config = config;
-        _httpClient = new HttpClient
-        {
-            Timeout = TimeSpan.FromSeconds(30)
-        };
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
     }
 
     public async Task<string> PostTallyXmlAsync(string xmlPayload)
     {
         try
         {
+            var httpClient = _httpClientFactory.CreateClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(30);
+            
             var content = new StringContent(xmlPayload, Encoding.Unicode, "text/xml");
             var url = $"http://{_config.Server}:{_config.Port}";
             
-            var response = await _httpClient.PostAsync(url, content);
+            var response = await httpClient.PostAsync(url, content);
             response.EnsureSuccessStatusCode();
             
             // Read response as UTF-16 LE (Unicode)
@@ -35,6 +38,7 @@ public class TallyXmlService
         }
         catch (HttpRequestException ex)
         {
+            _logger.LogError(ex, "Unable to connect to Tally at {Server}:{Port}", _config.Server, _config.Port);
             throw new Exception($"Unable to connect to Tally. Ensure Tally is running and XML port is enabled at {_config.Server}:{_config.Port}", ex);
         }
     }

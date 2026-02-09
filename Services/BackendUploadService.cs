@@ -1,21 +1,21 @@
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using TallySyncService.Models;
 
 namespace TallySyncService.Services;
 
 public class BackendUploadService
 {
-    private readonly HttpClient _httpClient;
     private readonly string _backendUrl;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger _logger;
 
-    public BackendUploadService(string backendUrl)
+    public BackendUploadService(string backendUrl, IHttpClientFactory httpClientFactory, ILogger logger)
     {
         _backendUrl = backendUrl;
-        _httpClient = new HttpClient
-        {
-            Timeout = TimeSpan.FromMinutes(5)
-        };
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
     }
 
     public async Task<bool> UploadCsvDataAsync(
@@ -47,41 +47,48 @@ public class BackendUploadService
             var jsonContent = JsonSerializer.Serialize(uploadRequest);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-            // Clear all default headers to prevent pollution from previous requests
-            _httpClient.DefaultRequestHeaders.Clear();
+            // Create HTTP client from factory
+            var httpClient = _httpClientFactory.CreateClient();
+            httpClient.Timeout = TimeSpan.FromMinutes(5);
 
-            // Add JWT token to headers if available (without "Bearer" prefix)
+            // Create request message for per-request headers
+            var request = new HttpRequestMessage(HttpMethod.Post, _backendUrl)
+            {
+                Content = content
+            };
+
+            // Add JWT token to request headers (per-request, not default headers)
             var token = AuthService.LoadToken();
             if (!string.IsNullOrEmpty(token))
             {
-                _httpClient.DefaultRequestHeaders.Add("Authorization", token);
+                request.Headers.Add("Authorization", token);
             }
 
-            // Add organization ID header if available
+            // Add organization ID header
             var orgId = AuthService.LoadOrganisationId();
             if (orgId.HasValue)
             {
-                _httpClient.DefaultRequestHeaders.Add("orgid", orgId.Value.ToString());
+                request.Headers.Add("orgid", orgId.Value.ToString());
             }
 
             // Send to backend
-            var response = await _httpClient.PostAsync(_backendUrl, content);
+            var response = await httpClient.SendAsync(request);
             
             if (response.IsSuccessStatusCode)
             {
-                Console.WriteLine($"  ✓ Uploaded {tableName} ({recordCount} records)");
+                _logger.LogInformation("Uploaded {TableName} ({RecordCount} records)", tableName, recordCount);
                 return true;
             }
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"  ✗ Failed to upload {tableName}: {response.StatusCode} - {errorContent}");
+                _logger.LogWarning("Failed to upload {TableName}: {StatusCode} - {Error}", tableName, response.StatusCode, errorContent);
                 return false;
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"  ✗ Error uploading {tableName}: {ex.Message}");
+            _logger.LogError(ex, "Error uploading {TableName}", tableName);
             return false;
         }
     }

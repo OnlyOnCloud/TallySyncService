@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using TallySyncService.Models;
 
 namespace TallySyncService.Services;
@@ -8,13 +9,15 @@ namespace TallySyncService.Services;
 public class AuthService
 {
     private readonly string _backendUrl;
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger _logger;
     private RSA? _rsa;
 
-    public AuthService(string backendUrl)
+    public AuthService(string backendUrl, IHttpClientFactory httpClientFactory, ILogger logger)
     {
         _backendUrl = backendUrl;
-        _httpClient = new HttpClient();
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
     }
 
     public async Task<bool> SendOtpEmailAsync(string email)
@@ -36,23 +39,27 @@ public class AuthService
             var jsonContent = JsonSerializer.Serialize(request);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{_backendUrl}/sendotpmail", content);
+            var httpClient = _httpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync($"{_backendUrl}/sendotpmail", content);
             
             if (response.IsSuccessStatusCode)
             {
                 var responseText = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation("OTP sent successfully: {Response}", responseText);
                 Console.WriteLine($"✓ {responseText}");
                 return true;
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("Failed to send OTP: {Error}", error);
                 Console.WriteLine($"✗ Failed to send OTP: {error}");
                 return false;
             }
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error sending OTP");
             Console.WriteLine($"✗ Error sending OTP: {ex.Message}");
             return false;
         }
@@ -76,7 +83,8 @@ public class AuthService
             var jsonContent = JsonSerializer.Serialize(request);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{_backendUrl}/validateotp", content);
+            var httpClient = _httpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync($"{_backendUrl}/validateotp", content);
             
             if (response.IsSuccessStatusCode)
             {
@@ -86,6 +94,7 @@ public class AuthService
                 
                 if (loginResponse != null && !string.IsNullOrEmpty(loginResponse.Token))
                 {
+                    _logger.LogInformation("Login successful");
                     Console.WriteLine("✓ Login successful!");
                     return loginResponse.Token;
                 }
@@ -93,6 +102,7 @@ public class AuthService
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("Invalid OTP: {Error}", error);
                 Console.WriteLine($"✗ Invalid OTP: {error}");
             }
 
@@ -100,6 +110,7 @@ public class AuthService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error validating OTP");
             Console.WriteLine($"✗ Error validating OTP: {ex.Message}");
             return null;
         }
@@ -109,7 +120,8 @@ public class AuthService
     {
         try
         {
-            var response = await _httpClient.GetAsync($"{_backendUrl}/key");
+            var httpClient = _httpClientFactory.CreateClient();
+            var response = await httpClient.GetAsync($"{_backendUrl}/key");
             response.EnsureSuccessStatusCode();
 
             var responseText = await response.Content.ReadAsStringAsync();
@@ -124,6 +136,7 @@ public class AuthService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Failed to load public key");
             throw new Exception($"Failed to load public key: {ex.Message}", ex);
         }
     }
@@ -132,14 +145,13 @@ public class AuthService
     {
         try
         {
-            // Send token directly without "Bearer" prefix
-            if (_httpClient.DefaultRequestHeaders.Contains("Authorization"))
-            {
-                _httpClient.DefaultRequestHeaders.Remove("Authorization");
-            }
-            _httpClient.DefaultRequestHeaders.Add("Authorization", token);
+            var httpClient = _httpClientFactory.CreateClient();
+            
+            // Create request with per-request Authorization header
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{_backendUrl}/users/orgs");
+            request.Headers.Add("Authorization", token);
 
-            var response = await _httpClient.GetAsync($"{_backendUrl}/users/orgs");
+            var response = await httpClient.SendAsync(request);
             
             if (response.IsSuccessStatusCode)
             {
@@ -151,6 +163,7 @@ public class AuthService
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("Failed to fetch organizations: {Error}", error);
                 Console.WriteLine($"✗ Failed to fetch organizations: {error}");
             }
 
@@ -158,6 +171,7 @@ public class AuthService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error fetching organizations");
             Console.WriteLine($"✗ Error fetching organizations: {ex.Message}");
             return null;
         }

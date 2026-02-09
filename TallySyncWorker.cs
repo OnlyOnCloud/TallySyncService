@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using TallySyncService.Models;
 using TallySyncService.Services;
 
@@ -6,29 +8,49 @@ namespace TallySyncService;
 
 public class TallySyncWorker : BackgroundService
 {
+    private readonly ILogger<TallySyncWorker> _logger;
+    private readonly IConfiguration _configuration;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly YamlConfigLoader _yamlLoader;
     private readonly TallyConfig _config;
     private readonly int _intervalMinutes;
     private readonly string _backendUrl;
     private readonly string _tableMode;
     private readonly List<string> _customTables;
 
-    public TallySyncWorker()
+    public TallySyncWorker(
+        ILogger<TallySyncWorker> logger,
+        IConfiguration configuration,
+        IHttpClientFactory httpClientFactory,
+        YamlConfigLoader yamlLoader)
     {
-        var (tallyConfig, intervalMinutes, backendUrl, tableMode, customTables) = LoadConfiguration();
-        _config = tallyConfig;
-        _intervalMinutes = intervalMinutes;
-        _backendUrl = backendUrl;
-        _tableMode = tableMode;
-        _customTables = customTables;
+        _logger = logger;
+        _configuration = configuration;
+        _httpClientFactory = httpClientFactory;
+        _yamlLoader = yamlLoader;
+        
+        // Load configuration from appsettings.json
+        _config = new TallyConfig
+        {
+            Server = _configuration["Tally:Server"] ?? "localhost",
+            Port = int.Parse(_configuration["Tally:Port"] ?? "9000"),
+            Company = _configuration["Tally:Company"] ?? "",
+            TallyPath = _configuration["Tally:TallyPath"] ?? "",
+            DefinitionFile = _configuration["Tally:DefinitionFile"] ?? "tally-export-config.yaml"
+        };
+        
+        _intervalMinutes = int.Parse(_configuration["Sync:IntervalMinutes"] ?? "15");
+        _backendUrl = _configuration["Backend:Url"] ?? "http://localhost:3001/api/data";
+        _tableMode = _configuration["Tables:Mode"] ?? "all";
+        _customTables = _configuration.GetSection("Tables:CustomTables").Get<List<string>>() ?? new List<string>();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        Console.WriteLine("╔═══════════════════════════════════════════════╗");
-        Console.WriteLine("║   Tally CSV Sync Service (Background)         ║");
-        Console.WriteLine("║   Syncing every 15 minutes                    ║");
-        Console.WriteLine("╚═══════════════════════════════════════════════╝");
-        Console.WriteLine();
+        _logger.LogInformation("╔═══════════════════════════════════════════════╗");
+        _logger.LogInformation("║   Tally CSV Sync Service (Background)         ║");
+        _logger.LogInformation("║   Syncing every {IntervalMinutes} minutes                    ║", _intervalMinutes);
+        _logger.LogInformation("╚═══════════════════════════════════════════════╝");
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -38,39 +60,39 @@ public class TallySyncWorker : BackgroundService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"✗ Sync error: {ex.Message}");
+                _logger.LogError(ex, "Sync error occurred");
             }
 
             // Wait for the specified interval
-            Console.WriteLine($"\n⏱️  Next sync in {_intervalMinutes} minutes...\n");
+            _logger.LogInformation("Next sync in {IntervalMinutes} minutes...", _intervalMinutes);
             await Task.Delay(TimeSpan.FromMinutes(_intervalMinutes), stoppingToken);
         }
     }
 
     private async Task PerformSyncAsync()
     {
-        var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        Console.WriteLine($"═══════════════════════════════════════════════");
-        Console.WriteLine($"🔄 Starting sync at {timestamp}");
-        Console.WriteLine($"═══════════════════════════════════════════════");
+        _logger.LogInformation("═══════════════════════════════════════════════");
+        _logger.LogInformation("Starting sync at {Timestamp}", DateTime.Now);
+        _logger.LogInformation("═══════════════════════════════════════════════");
 
         try
         {
-            // Initialize services
-            var tallyXmlService = new TallyXmlService(_config);
+            // Initialize services with dependency injection
+            var httpClient = _httpClientFactory.CreateClient();
+            var tallyXmlService = new TallyXmlService(_config, _httpClientFactory, _logger);
             var xmlGenerator = new XmlGenerator();
             var exporter = new TallyDataExporter(tallyXmlService, xmlGenerator, _config);
-            var yamlLoader = new YamlConfigLoader(_config.DefinitionFile);
-            var uploadService = new BackendUploadService(_backendUrl);
+            await _yamlLoader.LoadAsync();
+            var uploadService = new BackendUploadService(_backendUrl, _httpClientFactory, _logger);
 
             // Test Tally connection
-            Console.WriteLine("Testing connection to Tally...");
+            _logger.LogInformation("Testing connection to Tally...");
             if (!await tallyXmlService.TestConnectionAsync())
             {
-                Console.WriteLine($"✗ Unable to connect to Tally at {_config.Server}:{_config.Port}");
+                _logger.LogWarning("Unable to connect to Tally at {Server}:{Port}", _config.Server, _config.Port);
                 
                 // Try to auto-start Tally
-                Console.WriteLine("\n🔄 Attempting to start Tally automatically...");
+                _logger.LogInformation("Attempting to start Tally automatically...");
                 
                 var notificationService = new NotificationService();
                 var tallyProcessService = new TallyProcessService(_config.TallyPath);
@@ -80,76 +102,75 @@ public class TallySyncWorker : BackgroundService
                     "Tally Sync Service",
                     "Tally server not running. Please select the company within 15 seconds to complete the sync."
                 );
-                Console.WriteLine("📢 Notification sent to user");
+                _logger.LogInformation("Notification sent to user");
                 
                 // Launch Tally if not already running
                  
                     if (!tallyProcessService.LaunchTally())
                     {
-                        Console.WriteLine("✗ Failed to launch Tally. Skipping this sync cycle.");
+                        _logger.LogWarning("Failed to launch Tally. Skipping this sync cycle.");
                         return;
                     }
                  
                 
                 // Wait 15 seconds for user to select company
-                Console.WriteLine("⏱️  Waiting 15 seconds for user to select company...");
+                _logger.LogInformation("Waiting 15 seconds for user to select company...");
                 await Task.Delay(TimeSpan.FromSeconds(15));
                 
                 // Test connection again
-                Console.WriteLine("Testing connection to Tally again...");
+                _logger.LogInformation("Testing connection to Tally again...");
                 if (!await tallyXmlService.TestConnectionAsync())
                 {
-                    Console.WriteLine($"✗ Still unable to connect to Tally. Skipping this sync cycle.");
-                    Console.WriteLine($"   Will retry in {_intervalMinutes} minutes.");
+                    _logger.LogWarning("Still unable to connect to Tally. Skipping this sync cycle.");
+                    _logger.LogInformation("Will retry in {IntervalMinutes} minutes.", _intervalMinutes);
                     return;
                 }
                 
-                Console.WriteLine("✓ Successfully connected to Tally after auto-start");
+                _logger.LogInformation("Successfully connected to Tally after auto-start");
             }
             else
             {
-                Console.WriteLine($"✓ Connected to Tally");
+                _logger.LogInformation("Connected to Tally");
             }
 
             // Load table definitions
-            await yamlLoader.LoadAsync();
-            var allTables = GetTablesToExport(yamlLoader);
-            Console.WriteLine($"✓ Loaded {allTables.Count} table(s) to export (mode: {_tableMode})");
+            var allTables = GetTablesToExport(_yamlLoader);
+            _logger.LogInformation("Loaded {TableCount} table(s) to export (mode: {TableMode})", allTables.Count, _tableMode);
 
             // Get company
             var companies = await tallyXmlService.GetCompanyListAsync();
             if (companies.Count == 0)
             {
-                Console.WriteLine("✗ No companies found");
+                _logger.LogWarning("No companies found");
                 return;
             }
 
             var company = companies.FirstOrDefault(c => c.Name == _config.Company) ?? companies[0];
             _config.Company = company.Name;
-            Console.WriteLine($"✓ Using company: {company.Name}");
+            _logger.LogInformation("Using company: {CompanyName}", company.Name);
 
             // Create temporary export directory
             var tempDir = Path.Combine(Path.GetTempPath(), $"tally_export_{Guid.NewGuid():N}");
             Directory.CreateDirectory(tempDir);
 
-            Console.WriteLine($"\n📤 Exporting {allTables.Count} tables...");
-            Console.WriteLine("─────────────────────────────────────────────────");
+            _logger.LogInformation("Exporting {TableCount} tables...", allTables.Count);
+            _logger.LogInformation("─────────────────────────────────────────────────");
 
             // Export all tables
             var exportedFiles = await exporter.ExportMultipleTablesToCsvAsync(allTables, tempDir);
 
-            Console.WriteLine("─────────────────────────────────────────────────");
-            Console.WriteLine($"✓ Exported {exportedFiles.Count} files");
+            _logger.LogInformation("─────────────────────────────────────────────────");
+            _logger.LogInformation("Exported {FileCount} files", exportedFiles.Count);
 
             // Upload to backend
-            Console.WriteLine($"\n📡 Uploading to backend ({_backendUrl})...");
-            Console.WriteLine("─────────────────────────────────────────────────");
+            _logger.LogInformation("Uploading to backend ({BackendUrl})...", _backendUrl);
+            _logger.LogInformation("─────────────────────────────────────────────────");
 
             // Get organisation ID from login (saved in ~/.tally_org)
             var organisationId = AuthService.LoadOrganisationId();
             if (!organisationId.HasValue)
             {
-                Console.WriteLine("✗ No organization selected. Please run: dotnet run -- --login");
+                _logger.LogWarning("No organization selected. Please run: dotnet run -- --login");
                 return;
             }
 
@@ -157,29 +178,25 @@ public class TallySyncWorker : BackgroundService
                 exportedFiles, 
                 (int)organisationId.Value);
 
-            Console.WriteLine("─────────────────────────────────────────────────");
-            Console.WriteLine($"✓ Uploaded {uploadedCount}/{exportedFiles.Count} files successfully");
+            _logger.LogInformation("─────────────────────────────────────────────────");
+            _logger.LogInformation("Uploaded {UploadedCount}/{TotalCount} files successfully", uploadedCount, exportedFiles.Count);
 
             // Cleanup temporary directory
             try
             {
                 Directory.Delete(tempDir, true);
-                Console.WriteLine($"✓ Cleaned up temporary files");
+                _logger.LogInformation("Cleaned up temporary files");
             }
-            catch
+            catch (Exception cleanupEx)
             {
-                // Ignore cleanup errors
+                _logger.LogWarning(cleanupEx, "Failed to cleanup temporary files");
             }
 
-            Console.WriteLine($"\n✅ Sync completed successfully at {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            _logger.LogInformation("Sync completed successfully at {Timestamp}", DateTime.Now);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"\n✗ Sync failed: {ex.Message}");
-            if (ex.InnerException != null)
-            {
-                Console.WriteLine($"  Details: {ex.InnerException.Message}");
-            }
+            _logger.LogError(ex, "Sync failed");
         }
     }
 
@@ -194,87 +211,5 @@ public class TallySyncWorker : BackgroundService
                 : yamlLoader.GetAllTables(),
             _ => yamlLoader.GetAllTables()
         };
-    }
-
-    private (TallyConfig, int, string, string, List<string>) LoadConfiguration()
-    {
-        var configPath = "config.json";
-        var tallyConfig = new TallyConfig();
-        var intervalMinutes = 15;
-        var backendUrl = "http://localhost:3001/api/data";
-        var tableMode = "all";
-        var customTables = new List<string>();
-        
-        if (!File.Exists(configPath))
-        {
-            Console.WriteLine("⚠️  config.json not found, using defaults");
-            return (tallyConfig, intervalMinutes, backendUrl, tableMode, customTables);
-        }
-
-        try
-        {
-            var json = File.ReadAllText(configPath);
-            var configData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, System.Text.Json.JsonElement>>(json);
-            
-            if (configData != null)
-            {
-                // Load Tally configuration
-                if (configData.ContainsKey("tally"))
-                {
-                    var tally = configData["tally"];
-                    
-                    if (tally.TryGetProperty("server", out var server))
-                        tallyConfig.Server = server.GetString() ?? "localhost";
-                    
-                    if (tally.TryGetProperty("port", out var port))
-                        tallyConfig.Port = port.GetInt32();
-                    
-                    if (tally.TryGetProperty("company", out var company))
-                        tallyConfig.Company = company.GetString() ?? "";
-                    
-                    if (tally.TryGetProperty("tallyPath", out var tallyPath))
-                        tallyConfig.TallyPath = tallyPath.GetString() ?? "";
-                }
-
-                // Load sync configuration
-                if (configData.ContainsKey("sync"))
-                {
-                    var sync = configData["sync"];
-                    
-                    if (sync.TryGetProperty("intervalMinutes", out var interval))
-                        intervalMinutes = interval.GetInt32();
-                }
-
-                // Load backend configuration
-                if (configData.ContainsKey("backend"))
-                {
-                    var backend = configData["backend"];
-                    
-                    if (backend.TryGetProperty("url", out var url))
-                        backendUrl = url.GetString() ?? backendUrl;
-                }
-
-                // Load table selection configuration
-                if (configData.ContainsKey("tables"))
-                {
-                    var tables = configData["tables"];
-                    
-                    if (tables.TryGetProperty("mode", out var mode))
-                        tableMode = mode.GetString() ?? "all";
-                    
-                    if (tables.TryGetProperty("customTables", out var custom))
-                    {
-                        customTables = System.Text.Json.JsonSerializer.Deserialize<List<string>>(custom.GetRawText()) ?? new List<string>();
-                    }
-                }
-            }
-
-            return (tallyConfig, intervalMinutes, backendUrl, tableMode, customTables);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"⚠️  Error loading config: {ex.Message}, using defaults");
-            return (tallyConfig, intervalMinutes, backendUrl, tableMode, customTables);
-        }
     }
 }

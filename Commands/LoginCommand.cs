@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TallySyncService.Services;
 
 namespace TallySyncService.Commands;
@@ -11,7 +13,15 @@ public class LoginCommand
         Console.WriteLine("╚═══════════════════════════════════════════════╝");
         Console.WriteLine();
 
-        var authService = new AuthService(backendUrl);
+        // Create a temporary service collection for dependency injection
+        var services = new ServiceCollection();
+        services.AddHttpClient();
+        services.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Warning));
+        var serviceProvider = services.BuildServiceProvider();
+
+        var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+        var logger = serviceProvider.GetRequiredService<ILogger<AuthService>>();
+        var authService = new AuthService(backendUrl, httpClientFactory, logger);
 
         // Get email
         Console.Write("Enter your email: ");

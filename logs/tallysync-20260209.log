@@ -1,0 +1,368 @@
+[2026-02-09 16:21:12.372 +05:30 INF] ╔═══════════════════════════════════════════════╗
+2026-02-09 16:21:12.372 +05:30 [INF] ╔═══════════════════════════════════════════════╗
+[2026-02-09 16:21:12.406 +05:30 INF] ║   Tally CSV Sync Service (Background)         ║
+2026-02-09 16:21:12.406 +05:30 [INF] ║   Tally CSV Sync Service (Background)         ║
+[2026-02-09 16:21:12.408 +05:30 INF] ║   Syncing every 15 minutes                    ║
+2026-02-09 16:21:12.408 +05:30 [INF] ║   Syncing every 15 minutes                    ║
+[2026-02-09 16:21:12.410 +05:30 INF] ╚═══════════════════════════════════════════════╝
+2026-02-09 16:21:12.410 +05:30 [INF] ╚═══════════════════════════════════════════════╝
+[2026-02-09 16:21:12.411 +05:30 INF] ═══════════════════════════════════════════════
+2026-02-09 16:21:12.411 +05:30 [INF] ═══════════════════════════════════════════════
+[2026-02-09 16:21:12.412 +05:30 INF] Starting sync at "2026-02-09T16:21:12.4119978+05:30"
+2026-02-09 16:21:12.412 +05:30 [INF] Starting sync at "2026-02-09T16:21:12.4119978+05:30"
+[2026-02-09 16:21:12.413 +05:30 INF] ═══════════════════════════════════════════════
+2026-02-09 16:21:12.413 +05:30 [INF] ═══════════════════════════════════════════════
+[2026-02-09 16:21:12.423 +05:30 INF] Application started. Press Ctrl+C to shut down.
+2026-02-09 16:21:12.423 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+[2026-02-09 16:21:12.423 +05:30 INF] Hosting environment: Development
+2026-02-09 16:21:12.423 +05:30 [INF] Hosting environment: Development
+[2026-02-09 16:21:12.423 +05:30 INF] Content root path: /home/achiket/Documents/work/onlyoncloud/TallySyncService
+2026-02-09 16:21:12.423 +05:30 [INF] Content root path: /home/achiket/Documents/work/onlyoncloud/TallySyncService
+[2026-02-09 16:21:12.474 +05:30 INF] Testing connection to Tally...
+2026-02-09 16:21:12.474 +05:30 [INF] Testing connection to Tally...
+[2026-02-09 16:21:12.513 +05:30 INF] Connected to Tally
+2026-02-09 16:21:12.513 +05:30 [INF] Connected to Tally
+[2026-02-09 16:21:12.514 +05:30 INF] Loaded 32 table(s) to export (mode: all)
+2026-02-09 16:21:12.514 +05:30 [INF] Loaded 32 table(s) to export (mode: all)
+[2026-02-09 16:21:12.563 +05:30 INF] Using company: Onlyoncloud
+2026-02-09 16:21:12.563 +05:30 [INF] Using company: Onlyoncloud
+[2026-02-09 16:21:12.566 +05:30 INF] Exporting 32 tables...
+2026-02-09 16:21:12.566 +05:30 [INF] Exporting 32 tables...
+[2026-02-09 16:21:12.566 +05:30 INF] ─────────────────────────────────────────────────
+2026-02-09 16:21:12.566 +05:30 [INF] ─────────────────────────────────────────────────
+[2026-02-09 16:21:14.510 +05:30 INF] ─────────────────────────────────────────────────
+2026-02-09 16:21:14.510 +05:30 [INF] ─────────────────────────────────────────────────
+[2026-02-09 16:21:14.513 +05:30 INF] Exported 32 files
+2026-02-09 16:21:14.513 +05:30 [INF] Exported 32 files
+[2026-02-09 16:21:14.513 +05:30 INF] Uploading to backend (https://dhub-backend-dev.onlyoncloud.com/api/data)...
+2026-02-09 16:21:14.513 +05:30 [INF] Uploading to backend (https://dhub-backend-dev.onlyoncloud.com/api/data)...
+[2026-02-09 16:21:14.514 +05:30 INF] ─────────────────────────────────────────────────
+2026-02-09 16:21:14.514 +05:30 [INF] ─────────────────────────────────────────────────
+[2026-02-09 16:21:15.213 +05:30 INF] Uploaded mst_group (29 records)
+2026-02-09 16:21:15.213 +05:30 [INF] Uploaded mst_group (29 records)
+[2026-02-09 16:21:15.295 +05:30 INF] Uploaded mst_ledger (6 records)
+2026-02-09 16:21:15.295 +05:30 [INF] Uploaded mst_ledger (6 records)
+[2026-02-09 16:21:15.411 +05:30 INF] Uploaded mst_vouchertype (26 records)
+2026-02-09 16:21:15.411 +05:30 [INF] Uploaded mst_vouchertype (26 records)
+[2026-02-09 16:21:15.470 +05:30 INF] Uploaded mst_uom (1 records)
+2026-02-09 16:21:15.470 +05:30 [INF] Uploaded mst_uom (1 records)
+[2026-02-09 16:21:15.520 +05:30 INF] Uploaded mst_godown (2 records)
+2026-02-09 16:21:15.520 +05:30 [INF] Uploaded mst_godown (2 records)
+[2026-02-09 16:21:15.594 +05:30 WRN] Failed to upload mst_stock_category: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:15.594 +05:30 [WRN] Failed to upload mst_stock_category: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:15.664 +05:30 WRN] Failed to upload mst_stock_group: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:15.664 +05:30 [WRN] Failed to upload mst_stock_group: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:15.726 +05:30 INF] Uploaded mst_stock_item (3 records)
+2026-02-09 16:21:15.726 +05:30 [INF] Uploaded mst_stock_item (3 records)
+[2026-02-09 16:21:15.780 +05:30 INF] Uploaded mst_cost_category (1 records)
+2026-02-09 16:21:15.780 +05:30 [INF] Uploaded mst_cost_category (1 records)
+[2026-02-09 16:21:15.846 +05:30 INF] Uploaded mst_cost_centre (1 records)
+2026-02-09 16:21:15.846 +05:30 [INF] Uploaded mst_cost_centre (1 records)
+[2026-02-09 16:21:15.913 +05:30 WRN] Failed to upload mst_attendance_type: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:15.913 +05:30 [WRN] Failed to upload mst_attendance_type: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:15.988 +05:30 INF] Uploaded mst_employee (1 records)
+2026-02-09 16:21:15.988 +05:30 [INF] Uploaded mst_employee (1 records)
+[2026-02-09 16:21:16.046 +05:30 WRN] Failed to upload mst_payhead: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:16.046 +05:30 [WRN] Failed to upload mst_payhead: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:16.134 +05:30 INF] Uploaded mst_gst_effective_rate (3 records)
+2026-02-09 16:21:16.134 +05:30 [INF] Uploaded mst_gst_effective_rate (3 records)
+[2026-02-09 16:21:16.207 +05:30 WRN] Failed to upload mst_opening_batch_allocation: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:16.207 +05:30 [WRN] Failed to upload mst_opening_batch_allocation: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:16.266 +05:30 WRN] Failed to upload mst_opening_bill_allocation: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:16.266 +05:30 [WRN] Failed to upload mst_opening_bill_allocation: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:16.282 +05:30 ERR] Error uploading trn_closingstock_ledger
+System.Net.Http.HttpRequestException: An error occurred while sending the request.
+ ---> System.Net.Http.HttpIOException: The response ended prematurely. (ResponseEnded)
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.<SendCoreAsync>g__Core|5_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingScopeHttpMessageHandler.<SendCoreAsync>g__Core|5_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at TallySyncService.Services.BackendUploadService.UploadCsvDataAsync(String tableName, Int32 organisationId, String csvFilePath) in /home/achiket/Documents/work/onlyoncloud/TallySyncService/Services/BackendUploadService.cs:line 75
+2026-02-09 16:21:16.282 +05:30 [ERR] Error uploading trn_closingstock_ledger
+System.Net.Http.HttpRequestException: An error occurred while sending the request.
+ ---> System.Net.Http.HttpIOException: The response ended prematurely. (ResponseEnded)
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.<SendCoreAsync>g__Core|5_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingScopeHttpMessageHandler.<SendCoreAsync>g__Core|5_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at TallySyncService.Services.BackendUploadService.UploadCsvDataAsync(String tableName, Int32 organisationId, String csvFilePath) in /home/achiket/Documents/work/onlyoncloud/TallySyncService/Services/BackendUploadService.cs:line 75
+[2026-02-09 16:21:16.506 +05:30 WRN] Failed to upload mst_stockitem_standard_cost: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:16.506 +05:30 [WRN] Failed to upload mst_stockitem_standard_cost: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:16.587 +05:30 WRN] Failed to upload mst_stockitem_standard_price: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:16.587 +05:30 [WRN] Failed to upload mst_stockitem_standard_price: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:16.642 +05:30 INF] Uploaded trn_voucher (2 records)
+2026-02-09 16:21:16.642 +05:30 [INF] Uploaded trn_voucher (2 records)
+[2026-02-09 16:21:16.709 +05:30 INF] Uploaded trn_accounting (4 records)
+2026-02-09 16:21:16.709 +05:30 [INF] Uploaded trn_accounting (4 records)
+[2026-02-09 16:21:16.767 +05:30 WRN] Failed to upload trn_inventory: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:16.767 +05:30 [WRN] Failed to upload trn_inventory: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:16.823 +05:30 WRN] Failed to upload trn_cost_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:16.823 +05:30 [WRN] Failed to upload trn_cost_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:16.882 +05:30 WRN] Failed to upload trn_cost_category_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:16.882 +05:30 [WRN] Failed to upload trn_cost_category_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:16.947 +05:30 WRN] Failed to upload trn_cost_inventory_category_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:16.947 +05:30 [WRN] Failed to upload trn_cost_inventory_category_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:17.017 +05:30 WRN] Failed to upload trn_bill: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:17.017 +05:30 [WRN] Failed to upload trn_bill: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:17.076 +05:30 WRN] Failed to upload trn_bank: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:17.076 +05:30 [WRN] Failed to upload trn_bank: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:17.144 +05:30 WRN] Failed to upload trn_batch: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:17.144 +05:30 [WRN] Failed to upload trn_batch: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:17.206 +05:30 INF] Uploaded trn_inventory_accounting (4 records)
+2026-02-09 16:21:17.206 +05:30 [INF] Uploaded trn_inventory_accounting (4 records)
+[2026-02-09 16:21:17.263 +05:30 WRN] Failed to upload trn_employee: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:17.263 +05:30 [WRN] Failed to upload trn_employee: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:17.327 +05:30 WRN] Failed to upload trn_payhead: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:17.327 +05:30 [WRN] Failed to upload trn_payhead: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:17.382 +05:30 WRN] Failed to upload trn_attendance: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:21:17.382 +05:30 [WRN] Failed to upload trn_attendance: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:21:17.382 +05:30 INF] ─────────────────────────────────────────────────
+2026-02-09 16:21:17.382 +05:30 [INF] ─────────────────────────────────────────────────
+[2026-02-09 16:21:17.382 +05:30 INF] Uploaded 13/32 files successfully
+2026-02-09 16:21:17.382 +05:30 [INF] Uploaded 13/32 files successfully
+[2026-02-09 16:21:17.385 +05:30 INF] Cleaned up temporary files
+2026-02-09 16:21:17.385 +05:30 [INF] Cleaned up temporary files
+[2026-02-09 16:21:17.386 +05:30 INF] Sync completed successfully at "2026-02-09T16:21:17.3860067+05:30"
+2026-02-09 16:21:17.386 +05:30 [INF] Sync completed successfully at "2026-02-09T16:21:17.3860067+05:30"
+[2026-02-09 16:21:17.386 +05:30 INF] Next sync in 15 minutes...
+2026-02-09 16:21:17.386 +05:30 [INF] Next sync in 15 minutes...
+[2026-02-09 16:23:26.978 +05:30 INF] Application is shutting down...
+2026-02-09 16:23:26.978 +05:30 [INF] Application is shutting down...
+[2026-02-09 16:23:29.050 +05:30 INF] ╔═══════════════════════════════════════════════╗
+2026-02-09 16:23:29.050 +05:30 [INF] ╔═══════════════════════════════════════════════╗
+[2026-02-09 16:23:29.083 +05:30 INF] ║   Tally CSV Sync Service (Background)         ║
+2026-02-09 16:23:29.083 +05:30 [INF] ║   Tally CSV Sync Service (Background)         ║
+[2026-02-09 16:23:29.086 +05:30 INF] ║   Syncing every 15 minutes                    ║
+2026-02-09 16:23:29.086 +05:30 [INF] ║   Syncing every 15 minutes                    ║
+[2026-02-09 16:23:29.089 +05:30 INF] ╚═══════════════════════════════════════════════╝
+2026-02-09 16:23:29.089 +05:30 [INF] ╚═══════════════════════════════════════════════╝
+[2026-02-09 16:23:29.091 +05:30 INF] ═══════════════════════════════════════════════
+2026-02-09 16:23:29.091 +05:30 [INF] ═══════════════════════════════════════════════
+[2026-02-09 16:23:29.091 +05:30 INF] Starting sync at "2026-02-09T16:23:29.0912451+05:30"
+2026-02-09 16:23:29.091 +05:30 [INF] Starting sync at "2026-02-09T16:23:29.0912451+05:30"
+[2026-02-09 16:23:29.092 +05:30 INF] ═══════════════════════════════════════════════
+2026-02-09 16:23:29.092 +05:30 [INF] ═══════════════════════════════════════════════
+[2026-02-09 16:23:29.103 +05:30 INF] Application started. Press Ctrl+C to shut down.
+2026-02-09 16:23:29.103 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+[2026-02-09 16:23:29.103 +05:30 INF] Hosting environment: Development
+2026-02-09 16:23:29.103 +05:30 [INF] Hosting environment: Development
+[2026-02-09 16:23:29.103 +05:30 INF] Content root path: /home/achiket/Documents/work/onlyoncloud/TallySyncService
+2026-02-09 16:23:29.103 +05:30 [INF] Content root path: /home/achiket/Documents/work/onlyoncloud/TallySyncService
+[2026-02-09 16:23:29.156 +05:30 INF] Testing connection to Tally...
+2026-02-09 16:23:29.156 +05:30 [INF] Testing connection to Tally...
+[2026-02-09 16:23:29.195 +05:30 INF] Connected to Tally
+2026-02-09 16:23:29.195 +05:30 [INF] Connected to Tally
+[2026-02-09 16:23:29.195 +05:30 INF] Loaded 32 table(s) to export (mode: all)
+2026-02-09 16:23:29.195 +05:30 [INF] Loaded 32 table(s) to export (mode: all)
+[2026-02-09 16:23:29.242 +05:30 INF] Using company: Onlyoncloud
+2026-02-09 16:23:29.242 +05:30 [INF] Using company: Onlyoncloud
+[2026-02-09 16:23:29.245 +05:30 INF] Exporting 32 tables...
+2026-02-09 16:23:29.245 +05:30 [INF] Exporting 32 tables...
+[2026-02-09 16:23:29.245 +05:30 INF] ─────────────────────────────────────────────────
+2026-02-09 16:23:29.245 +05:30 [INF] ─────────────────────────────────────────────────
+[2026-02-09 16:23:31.173 +05:30 INF] ─────────────────────────────────────────────────
+2026-02-09 16:23:31.173 +05:30 [INF] ─────────────────────────────────────────────────
+[2026-02-09 16:23:31.176 +05:30 INF] Exported 32 files
+2026-02-09 16:23:31.176 +05:30 [INF] Exported 32 files
+[2026-02-09 16:23:31.177 +05:30 INF] Uploading to backend (https://dhub-backend-dev.onlyoncloud.com/api/data)...
+2026-02-09 16:23:31.177 +05:30 [INF] Uploading to backend (https://dhub-backend-dev.onlyoncloud.com/api/data)...
+[2026-02-09 16:23:31.178 +05:30 INF] ─────────────────────────────────────────────────
+2026-02-09 16:23:31.178 +05:30 [INF] ─────────────────────────────────────────────────
+[2026-02-09 16:23:31.678 +05:30 INF] Uploaded mst_group (29 records)
+2026-02-09 16:23:31.678 +05:30 [INF] Uploaded mst_group (29 records)
+[2026-02-09 16:23:31.749 +05:30 INF] Uploaded mst_ledger (6 records)
+2026-02-09 16:23:31.749 +05:30 [INF] Uploaded mst_ledger (6 records)
+[2026-02-09 16:23:31.840 +05:30 INF] Uploaded mst_vouchertype (26 records)
+2026-02-09 16:23:31.840 +05:30 [INF] Uploaded mst_vouchertype (26 records)
+[2026-02-09 16:23:31.905 +05:30 INF] Uploaded mst_uom (1 records)
+2026-02-09 16:23:31.905 +05:30 [INF] Uploaded mst_uom (1 records)
+[2026-02-09 16:23:31.963 +05:30 INF] Uploaded mst_godown (2 records)
+2026-02-09 16:23:31.963 +05:30 [INF] Uploaded mst_godown (2 records)
+[2026-02-09 16:23:32.029 +05:30 WRN] Failed to upload mst_stock_category: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:32.029 +05:30 [WRN] Failed to upload mst_stock_category: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:32.091 +05:30 WRN] Failed to upload mst_stock_group: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:32.091 +05:30 [WRN] Failed to upload mst_stock_group: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:32.152 +05:30 INF] Uploaded mst_stock_item (3 records)
+2026-02-09 16:23:32.152 +05:30 [INF] Uploaded mst_stock_item (3 records)
+[2026-02-09 16:23:32.214 +05:30 INF] Uploaded mst_cost_category (1 records)
+2026-02-09 16:23:32.214 +05:30 [INF] Uploaded mst_cost_category (1 records)
+[2026-02-09 16:23:32.273 +05:30 INF] Uploaded mst_cost_centre (1 records)
+2026-02-09 16:23:32.273 +05:30 [INF] Uploaded mst_cost_centre (1 records)
+[2026-02-09 16:23:32.325 +05:30 WRN] Failed to upload mst_attendance_type: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:32.325 +05:30 [WRN] Failed to upload mst_attendance_type: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:32.390 +05:30 INF] Uploaded mst_employee (1 records)
+2026-02-09 16:23:32.390 +05:30 [INF] Uploaded mst_employee (1 records)
+[2026-02-09 16:23:32.444 +05:30 WRN] Failed to upload mst_payhead: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:32.444 +05:30 [WRN] Failed to upload mst_payhead: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:32.502 +05:30 INF] Uploaded mst_gst_effective_rate (3 records)
+2026-02-09 16:23:32.502 +05:30 [INF] Uploaded mst_gst_effective_rate (3 records)
+[2026-02-09 16:23:32.557 +05:30 WRN] Failed to upload mst_opening_batch_allocation: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:32.557 +05:30 [WRN] Failed to upload mst_opening_batch_allocation: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:32.621 +05:30 WRN] Failed to upload mst_opening_bill_allocation: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:32.621 +05:30 [WRN] Failed to upload mst_opening_bill_allocation: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:32.685 +05:30 WRN] Failed to upload trn_closingstock_ledger: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:32.685 +05:30 [WRN] Failed to upload trn_closingstock_ledger: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:32.755 +05:30 WRN] Failed to upload mst_stockitem_standard_cost: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:32.755 +05:30 [WRN] Failed to upload mst_stockitem_standard_cost: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:32.805 +05:30 WRN] Failed to upload mst_stockitem_standard_price: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:32.805 +05:30 [WRN] Failed to upload mst_stockitem_standard_price: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:32.857 +05:30 INF] Uploaded trn_voucher (2 records)
+2026-02-09 16:23:32.857 +05:30 [INF] Uploaded trn_voucher (2 records)
+[2026-02-09 16:23:32.921 +05:30 INF] Uploaded trn_accounting (4 records)
+2026-02-09 16:23:32.921 +05:30 [INF] Uploaded trn_accounting (4 records)
+[2026-02-09 16:23:32.984 +05:30 WRN] Failed to upload trn_inventory: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:32.984 +05:30 [WRN] Failed to upload trn_inventory: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:33.041 +05:30 WRN] Failed to upload trn_cost_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:33.041 +05:30 [WRN] Failed to upload trn_cost_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:33.095 +05:30 WRN] Failed to upload trn_cost_category_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:33.095 +05:30 [WRN] Failed to upload trn_cost_category_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:33.147 +05:30 WRN] Failed to upload trn_cost_inventory_category_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:33.147 +05:30 [WRN] Failed to upload trn_cost_inventory_category_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:33.203 +05:30 WRN] Failed to upload trn_bill: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:33.203 +05:30 [WRN] Failed to upload trn_bill: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:33.260 +05:30 WRN] Failed to upload trn_bank: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:33.260 +05:30 [WRN] Failed to upload trn_bank: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:33.314 +05:30 WRN] Failed to upload trn_batch: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:33.314 +05:30 [WRN] Failed to upload trn_batch: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:33.370 +05:30 INF] Uploaded trn_inventory_accounting (4 records)
+2026-02-09 16:23:33.370 +05:30 [INF] Uploaded trn_inventory_accounting (4 records)
+[2026-02-09 16:23:33.420 +05:30 WRN] Failed to upload trn_employee: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:33.420 +05:30 [WRN] Failed to upload trn_employee: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:33.473 +05:30 WRN] Failed to upload trn_payhead: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:33.473 +05:30 [WRN] Failed to upload trn_payhead: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:33.527 +05:30 WRN] Failed to upload trn_attendance: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:23:33.527 +05:30 [WRN] Failed to upload trn_attendance: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:23:33.527 +05:30 INF] ─────────────────────────────────────────────────
+2026-02-09 16:23:33.527 +05:30 [INF] ─────────────────────────────────────────────────
+[2026-02-09 16:23:33.528 +05:30 INF] Uploaded 13/32 files successfully
+2026-02-09 16:23:33.528 +05:30 [INF] Uploaded 13/32 files successfully
+[2026-02-09 16:23:33.532 +05:30 INF] Cleaned up temporary files
+2026-02-09 16:23:33.532 +05:30 [INF] Cleaned up temporary files
+[2026-02-09 16:23:33.532 +05:30 INF] Sync completed successfully at "2026-02-09T16:23:33.5321562+05:30"
+2026-02-09 16:23:33.532 +05:30 [INF] Sync completed successfully at "2026-02-09T16:23:33.5321562+05:30"
+[2026-02-09 16:23:33.532 +05:30 INF] Next sync in 15 minutes...
+2026-02-09 16:23:33.532 +05:30 [INF] Next sync in 15 minutes...
+[2026-02-09 16:23:51.714 +05:30 INF] Application is shutting down...
+2026-02-09 16:23:51.714 +05:30 [INF] Application is shutting down...
+[2026-02-09 16:24:12.393 +05:30 INF] ╔═══════════════════════════════════════════════╗
+2026-02-09 16:24:12.393 +05:30 [INF] ╔═══════════════════════════════════════════════╗
+[2026-02-09 16:24:12.421 +05:30 INF] ║   Tally CSV Sync Service (Background)         ║
+2026-02-09 16:24:12.421 +05:30 [INF] ║   Tally CSV Sync Service (Background)         ║
+[2026-02-09 16:24:12.423 +05:30 INF] ║   Syncing every 15 minutes                    ║
+2026-02-09 16:24:12.423 +05:30 [INF] ║   Syncing every 15 minutes                    ║
+[2026-02-09 16:24:12.425 +05:30 INF] ╚═══════════════════════════════════════════════╝
+2026-02-09 16:24:12.425 +05:30 [INF] ╚═══════════════════════════════════════════════╝
+[2026-02-09 16:24:12.426 +05:30 INF] ═══════════════════════════════════════════════
+2026-02-09 16:24:12.426 +05:30 [INF] ═══════════════════════════════════════════════
+[2026-02-09 16:24:12.427 +05:30 INF] Starting sync at "2026-02-09T16:24:12.4269526+05:30"
+2026-02-09 16:24:12.427 +05:30 [INF] Starting sync at "2026-02-09T16:24:12.4269526+05:30"
+[2026-02-09 16:24:12.427 +05:30 INF] ═══════════════════════════════════════════════
+2026-02-09 16:24:12.427 +05:30 [INF] ═══════════════════════════════════════════════
+[2026-02-09 16:24:12.438 +05:30 INF] Application started. Press Ctrl+C to shut down.
+2026-02-09 16:24:12.438 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+[2026-02-09 16:24:12.438 +05:30 INF] Hosting environment: Development
+2026-02-09 16:24:12.438 +05:30 [INF] Hosting environment: Development
+[2026-02-09 16:24:12.438 +05:30 INF] Content root path: /home/achiket/Documents/work/onlyoncloud/TallySyncService
+2026-02-09 16:24:12.438 +05:30 [INF] Content root path: /home/achiket/Documents/work/onlyoncloud/TallySyncService
+[2026-02-09 16:24:12.492 +05:30 INF] Testing connection to Tally...
+2026-02-09 16:24:12.492 +05:30 [INF] Testing connection to Tally...
+[2026-02-09 16:24:12.529 +05:30 INF] Connected to Tally
+2026-02-09 16:24:12.529 +05:30 [INF] Connected to Tally
+[2026-02-09 16:24:12.529 +05:30 INF] Loaded 32 table(s) to export (mode: all)
+2026-02-09 16:24:12.529 +05:30 [INF] Loaded 32 table(s) to export (mode: all)
+[2026-02-09 16:24:12.575 +05:30 INF] Using company: Onlyoncloud
+2026-02-09 16:24:12.575 +05:30 [INF] Using company: Onlyoncloud
+[2026-02-09 16:24:12.577 +05:30 INF] Exporting 32 tables...
+2026-02-09 16:24:12.577 +05:30 [INF] Exporting 32 tables...
+[2026-02-09 16:24:12.577 +05:30 INF] ─────────────────────────────────────────────────
+2026-02-09 16:24:12.577 +05:30 [INF] ─────────────────────────────────────────────────
+[2026-02-09 16:24:14.485 +05:30 INF] ─────────────────────────────────────────────────
+2026-02-09 16:24:14.485 +05:30 [INF] ─────────────────────────────────────────────────
+[2026-02-09 16:24:14.486 +05:30 INF] Exported 32 files
+2026-02-09 16:24:14.486 +05:30 [INF] Exported 32 files
+[2026-02-09 16:24:14.487 +05:30 INF] Uploading to backend (https://dhub-backend-dev.onlyoncloud.com/api/data)...
+2026-02-09 16:24:14.487 +05:30 [INF] Uploading to backend (https://dhub-backend-dev.onlyoncloud.com/api/data)...
+[2026-02-09 16:24:14.487 +05:30 INF] ─────────────────────────────────────────────────
+2026-02-09 16:24:14.487 +05:30 [INF] ─────────────────────────────────────────────────
+[2026-02-09 16:24:14.849 +05:30 INF] Uploaded mst_group (29 records)
+2026-02-09 16:24:14.849 +05:30 [INF] Uploaded mst_group (29 records)
+[2026-02-09 16:24:14.922 +05:30 INF] Uploaded mst_ledger (6 records)
+2026-02-09 16:24:14.922 +05:30 [INF] Uploaded mst_ledger (6 records)
+[2026-02-09 16:24:15.014 +05:30 INF] Uploaded mst_vouchertype (26 records)
+2026-02-09 16:24:15.014 +05:30 [INF] Uploaded mst_vouchertype (26 records)
+[2026-02-09 16:24:15.073 +05:30 INF] Uploaded mst_uom (1 records)
+2026-02-09 16:24:15.073 +05:30 [INF] Uploaded mst_uom (1 records)
+[2026-02-09 16:24:15.129 +05:30 INF] Uploaded mst_godown (2 records)
+2026-02-09 16:24:15.129 +05:30 [INF] Uploaded mst_godown (2 records)
+[2026-02-09 16:24:15.194 +05:30 WRN] Failed to upload mst_stock_category: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:15.194 +05:30 [WRN] Failed to upload mst_stock_category: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:15.244 +05:30 WRN] Failed to upload mst_stock_group: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:15.244 +05:30 [WRN] Failed to upload mst_stock_group: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:15.299 +05:30 INF] Uploaded mst_stock_item (3 records)
+2026-02-09 16:24:15.299 +05:30 [INF] Uploaded mst_stock_item (3 records)
+[2026-02-09 16:24:15.353 +05:30 INF] Uploaded mst_cost_category (1 records)
+2026-02-09 16:24:15.353 +05:30 [INF] Uploaded mst_cost_category (1 records)
+[2026-02-09 16:24:15.403 +05:30 INF] Uploaded mst_cost_centre (1 records)
+2026-02-09 16:24:15.403 +05:30 [INF] Uploaded mst_cost_centre (1 records)
+[2026-02-09 16:24:15.453 +05:30 WRN] Failed to upload mst_attendance_type: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:15.453 +05:30 [WRN] Failed to upload mst_attendance_type: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:15.504 +05:30 INF] Uploaded mst_employee (1 records)
+2026-02-09 16:24:15.504 +05:30 [INF] Uploaded mst_employee (1 records)
+[2026-02-09 16:24:15.553 +05:30 WRN] Failed to upload mst_payhead: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:15.553 +05:30 [WRN] Failed to upload mst_payhead: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:15.604 +05:30 INF] Uploaded mst_gst_effective_rate (3 records)
+2026-02-09 16:24:15.604 +05:30 [INF] Uploaded mst_gst_effective_rate (3 records)
+[2026-02-09 16:24:15.661 +05:30 WRN] Failed to upload mst_opening_batch_allocation: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:15.661 +05:30 [WRN] Failed to upload mst_opening_batch_allocation: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:15.718 +05:30 WRN] Failed to upload mst_opening_bill_allocation: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:15.718 +05:30 [WRN] Failed to upload mst_opening_bill_allocation: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:15.782 +05:30 WRN] Failed to upload trn_closingstock_ledger: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:15.782 +05:30 [WRN] Failed to upload trn_closingstock_ledger: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:15.843 +05:30 WRN] Failed to upload mst_stockitem_standard_cost: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:15.843 +05:30 [WRN] Failed to upload mst_stockitem_standard_cost: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:15.895 +05:30 WRN] Failed to upload mst_stockitem_standard_price: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:15.895 +05:30 [WRN] Failed to upload mst_stockitem_standard_price: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:15.953 +05:30 INF] Uploaded trn_voucher (2 records)
+2026-02-09 16:24:15.953 +05:30 [INF] Uploaded trn_voucher (2 records)
+[2026-02-09 16:24:16.004 +05:30 INF] Uploaded trn_accounting (4 records)
+2026-02-09 16:24:16.004 +05:30 [INF] Uploaded trn_accounting (4 records)
+[2026-02-09 16:24:16.062 +05:30 WRN] Failed to upload trn_inventory: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:16.062 +05:30 [WRN] Failed to upload trn_inventory: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:16.113 +05:30 WRN] Failed to upload trn_cost_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:16.113 +05:30 [WRN] Failed to upload trn_cost_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:16.171 +05:30 WRN] Failed to upload trn_cost_category_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:16.171 +05:30 [WRN] Failed to upload trn_cost_category_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:16.225 +05:30 WRN] Failed to upload trn_cost_inventory_category_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:16.225 +05:30 [WRN] Failed to upload trn_cost_inventory_category_centre: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:16.285 +05:30 WRN] Failed to upload trn_bill: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:16.285 +05:30 [WRN] Failed to upload trn_bill: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:16.350 +05:30 WRN] Failed to upload trn_bank: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:16.350 +05:30 [WRN] Failed to upload trn_bank: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:16.404 +05:30 WRN] Failed to upload trn_batch: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:16.404 +05:30 [WRN] Failed to upload trn_batch: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:16.464 +05:30 INF] Uploaded trn_inventory_accounting (4 records)
+2026-02-09 16:24:16.464 +05:30 [INF] Uploaded trn_inventory_accounting (4 records)
+[2026-02-09 16:24:16.515 +05:30 WRN] Failed to upload trn_employee: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:16.515 +05:30 [WRN] Failed to upload trn_employee: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:16.573 +05:30 WRN] Failed to upload trn_payhead: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:16.573 +05:30 [WRN] Failed to upload trn_payhead: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:16.640 +05:30 WRN] Failed to upload trn_attendance: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+2026-02-09 16:24:16.640 +05:30 [WRN] Failed to upload trn_attendance: "InternalServerError" - {"details":"CSV must have at least headers and one data row","error":"Failed to sync data to database"}
+[2026-02-09 16:24:16.641 +05:30 INF] ─────────────────────────────────────────────────
+2026-02-09 16:24:16.641 +05:30 [INF] ─────────────────────────────────────────────────
+[2026-02-09 16:24:16.641 +05:30 INF] Uploaded 13/32 files successfully
+2026-02-09 16:24:16.641 +05:30 [INF] Uploaded 13/32 files successfully
+[2026-02-09 16:24:16.645 +05:30 INF] Cleaned up temporary files
+2026-02-09 16:24:16.645 +05:30 [INF] Cleaned up temporary files
+[2026-02-09 16:24:16.645 +05:30 INF] Sync completed successfully at "2026-02-09T16:24:16.6456900+05:30"
+2026-02-09 16:24:16.645 +05:30 [INF] Sync completed successfully at "2026-02-09T16:24:16.6456900+05:30"
+[2026-02-09 16:24:16.645 +05:30 INF] Next sync in 15 minutes...
+2026-02-09 16:24:16.645 +05:30 [INF] Next sync in 15 minutes...

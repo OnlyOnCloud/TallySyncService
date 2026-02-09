@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "y/BJrAmZFJC6MhX21U9CQPA6E3LvA/QKjI5i1ihL+qre14mVydzYBl0vJ19/llqqQvPw2/7Co/7h36cMhPNyjg==",
+  "dgSpecHash": "lhu3XydeSPCRy6XVHwwBwUXR/+e4HBZInS06MV/eZnD2N5nDDbFQO11cp7VH8lJvpHgIV3zYDneaCDkoospZkg==",
   "success": true,
   "projectFilePath": "/home/achiket/Documents/work/onlyoncloud/TallySyncService/TallySyncService.csproj",
   "expectedPackageFiles": [
@@ -20,6 +20,7 @@
     "/home/achiket/.nuget/packages/microsoft.extensions.configuration.usersecrets/8.0.1/microsoft.extensions.configuration.usersecrets.8.0.1.nupkg.sha512",
     "/home/achiket/.nuget/packages/microsoft.extensions.dependencyinjection/8.0.1/microsoft.extensions.dependencyinjection.8.0.1.nupkg.sha512",
     "/home/achiket/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.2/microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "/home/achiket/.nuget/packages/microsoft.extensions.dependencymodel/8.0.0/microsoft.extensions.dependencymodel.8.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/microsoft.extensions.diagnostics/8.0.1/microsoft.extensions.diagnostics.8.0.1.nupkg.sha512",
     "/home/achiket/.nuget/packages/microsoft.extensions.diagnostics.abstractions/8.0.1/microsoft.extensions.diagnostics.abstractions.8.0.1.nupkg.sha512",
     "/home/achiket/.nuget/packages/microsoft.extensions.fileproviders.abstractions/8.0.0/microsoft.extensions.fileproviders.abstractions.8.0.0.nupkg.sha512",
@@ -52,6 +53,7 @@
     "/home/achiket/.nuget/packages/serilog/3.1.1/serilog.3.1.1.nupkg.sha512",
     "/home/achiket/.nuget/packages/serilog.extensions.hosting/8.0.0/serilog.extensions.hosting.8.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/serilog.extensions.logging/8.0.0/serilog.extensions.logging.8.0.0.nupkg.sha512",
+    "/home/achiket/.nuget/packages/serilog.settings.configuration/8.0.0/serilog.settings.configuration.8.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/serilog.sinks.console/5.0.0/serilog.sinks.console.5.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/serilog.sinks.file/5.0.0/serilog.sinks.file.5.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/system.commandline/2.0.0-beta4.22272.1/system.commandline.2.0.0-beta4.22272.1.nupkg.sha512",
@@ -65,6 +67,8 @@
     "/home/achiket/.nuget/packages/system.security.permissions/8.0.0/system.security.permissions.8.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/system.serviceprocess.servicecontroller/8.0.1/system.serviceprocess.servicecontroller.8.0.1.nupkg.sha512",
     "/home/achiket/.nuget/packages/system.text.encoding.codepages/8.0.0/system.text.encoding.codepages.8.0.0.nupkg.sha512",
+    "/home/achiket/.nuget/packages/system.text.encodings.web/8.0.0/system.text.encodings.web.8.0.0.nupkg.sha512",
+    "/home/achiket/.nuget/packages/system.text.json/8.0.0/system.text.json.8.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/system.windows.extensions/8.0.0/system.windows.extensions.8.0.0.nupkg.sha512",
     "/home/achiket/.nuget/packages/yamldotnet/13.1.1/yamldotnet.13.1.1.nupkg.sha512",
     "/home/achiket/.nuget/packages/zstdsharp.port/0.8.6/zstdsharp.port.0.8.6.nupkg.sha512"
