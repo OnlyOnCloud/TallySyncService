@@ -6,34 +6,81 @@ Write-Host "║  TallySyncService - Windows Auto-Start Setup ║" -ForegroundCol
 Write-Host "╚═══════════════════════════════════════════════╝" -ForegroundColor Cyan
 Write-Host ""
 
-# Get the absolute path to the project directory
-$ProjectDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+# 1. Validation: Must be Windows
+if ($IsLinux -or $IsMacOS) {
+    Write-Host "❌ Error: This script is for Windows only." -ForegroundColor Red
+    exit 1
+}
+
+# 2. Get absolute paths
+$ScriptPath = $MyInvocation.MyCommand.Path
+if (-not $ScriptPath) {
+    $ScriptPath = (Get-Item $PSCommandPath).FullName
+}
+$ProjectDir = Split-Path -Parent $ScriptPath
 $TaskName = "TallySyncService"
 
-# Create log directory
+# 3. Find Dotnet Executable
+$DotnetPath = (Get-Command dotnet -ErrorAction SilentlyContinue).Source
+if (-not $DotnetPath) {
+    Write-Host "❌ Error: 'dotnet' command not found. Please install .NET SDK/Runtime." -ForegroundColor Red
+    exit 1
+}
+
+# 4. Locate DLL
+$DllPath = "$ProjectDir\bin\Debug\net8.0\TallySyncService.dll"
+if (-not (Test-Path $DllPath)) {
+    # Try Release if Debug not found
+    $DllPath = "$ProjectDir\bin\Release\net8.0\TallySyncService.dll"
+}
+
+if (-not (Test-Path $DllPath)) {
+    Write-Host "⚠️  Executable DLL not found. Attempting to build project..." -ForegroundColor Yellow
+    Push-Location $ProjectDir
+    dotnet build -c Debug
+    Pop-Location
+    $DllPath = "$ProjectDir\bin\Debug\net8.0\TallySyncService.dll"
+}
+
+if (-not (Test-Path $DllPath)) {
+    Write-Host "❌ Error: Could not find or build TallySyncService.dll." -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "✓ Using Dotnet: $DotnetPath" -ForegroundColor Gray
+Write-Host "✓ Using DLL:    $DllPath" -ForegroundColor Gray
+
+# 5. Create log directory
 $LogDir = "$env:LOCALAPPDATA\TallySyncService\Logs"
 if (-not (Test-Path $LogDir)) {
     New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
     Write-Host "✓ Created log directory: $LogDir" -ForegroundColor Green
 }
 
-# Check if task already exists
+# 6. Check for Admin Privileges
+$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host "⚠️  Warning: This script should ideally be run as Administrator to create scheduled tasks." -ForegroundColor Yellow
+}
+
+# 7. Check if task already exists
 $ExistingTask = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 if ($ExistingTask) {
     Write-Host "⚠️  Task '$TaskName' already exists. Removing old task..." -ForegroundColor Yellow
     Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
 }
 
-# Create the action (what to run)
+# 8. Create the action
+# We use 'dotnet exec' to run the DLL directly, which is faster and more reliable than 'dotnet run'
 $Action = New-ScheduledTaskAction `
-    -Execute "dotnet" `
-    -Argument "run --project `"$ProjectDir\TallySyncService.csproj`"" `
-    -WorkingDirectory $ProjectDir
+    -Execute "`"$DotnetPath`"" `
+    -Argument "exec `"$DllPath`"" `
+    -WorkingDirectory "`"$ProjectDir`""
 
-# Create the trigger (when to run - at user login)
+# 9. Create the trigger (at user login)
 $Trigger = New-ScheduledTaskTrigger -AtLogOn
 
-# Create settings
+# 10. Create settings
 $Settings = New-ScheduledTaskSettingsSet `
     -AllowStartIfOnBatteries `
     -DontStopIfGoingOnBatteries `
@@ -41,26 +88,32 @@ $Settings = New-ScheduledTaskSettingsSet `
     -RestartCount 3 `
     -RestartInterval (New-TimeSpan -Minutes 1)
 
-# Create the principal (run as current user)
+# 11. Create the principal (run with highest privileges for the current user)
 $Principal = New-ScheduledTaskPrincipal `
     -UserId $env:USERNAME `
     -LogonType Interactive `
-    -RunLevel Limited
+    -RunLevel Highest
 
-# Register the scheduled task
-Register-ScheduledTask `
-    -TaskName $TaskName `
-    -Action $Action `
-    -Trigger $Trigger `
-    -Settings $Settings `
-    -Principal $Principal `
-    -Description "Automatically syncs Tally data to backend on user login" | Out-Null
+# 12. Register the scheduled task
+try {
+    Register-ScheduledTask `
+        -TaskName $TaskName `
+        -Action $Action `
+        -Trigger $Trigger `
+        -Settings $Settings `
+        -Principal $Principal `
+        -Description "Automatically syncs Tally data to backend on user login" -ErrorAction Stop | Out-Null
+    
+    Write-Host "✓ Created scheduled task: $TaskName" -ForegroundColor Green
 
-Write-Host "✓ Created scheduled task: $TaskName" -ForegroundColor Green
-
-# Start the task now
-Start-ScheduledTask -TaskName $TaskName
-Write-Host "✓ Started task" -ForegroundColor Green
+    # 13. Start the task now
+    Start-ScheduledTask -TaskName $TaskName
+    Write-Host "✓ Started task" -ForegroundColor Green
+}
+catch {
+    Write-Host "❌ Failed to register scheduled task: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "   Make sure you are running PowerShell as Administrator." -ForegroundColor Yellow
+}
 
 Write-Host ""
 Write-Host "═══════════════════════════════════════════════" -ForegroundColor Cyan
