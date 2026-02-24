@@ -15,7 +15,7 @@ if (args.Length > 0)
             return;
         
         case "--login":
-            var backendUrl = args.Length > 1 ? args[1] : "http://localhost:3001";
+            var backendUrl = args.Length > 1 ? args[1] : "https://dhub-backend.onlyoncloud.com";
             await LoginCommand.ExecuteAsync(backendUrl);
             return;
     }

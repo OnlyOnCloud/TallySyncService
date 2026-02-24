@@ -61,13 +61,7 @@ public class SetupCommand
         if (string.IsNullOrWhiteSpace(exportPath)) exportPath = "./exports";
 
         // Backend Configuration
-        Console.WriteLine("\n=== Backend Configuration ===");
-        Console.Write("Backend Base URL (e.g., http://localhost:3001): ");
-        var backendBaseUrl = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(backendBaseUrl)) backendBaseUrl = "http://localhost:3001";
-        
-        // Remove trailing slash if present
-        backendBaseUrl = backendBaseUrl.TrimEnd('/');
+        var backendBaseUrl = "https://dhub-backend.onlyoncloud.com";
 
         // Create TallyConfig for use in custom table selection
         var tallyConfig = new TallyConfig
@@ -206,7 +200,7 @@ public class SetupCommand
 
         Console.WriteLine();
         Console.WriteLine("Setup complete! You can now:");
-        Console.WriteLine($"  1. Login: dotnet run -- --login {backendBaseUrl}");
+        Console.WriteLine("  1. Login: dotnet run -- --login");
         Console.WriteLine("  2. Start sync: dotnet run");
         Console.WriteLine();
         Console.WriteLine($"Backend configured: {backendBaseUrl}");

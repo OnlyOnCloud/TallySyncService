@@ -40,7 +40,7 @@ public class TallySyncWorker : BackgroundService
         };
         
         _intervalMinutes = int.Parse(_configuration["Sync:IntervalMinutes"] ?? "15");
-        _backendUrl = _configuration["Backend:Url"] ?? "http://localhost:3001/api/data";
+        _backendUrl = _configuration["Backend:Url"] ?? "https://dhub-backend.onlyoncloud.com/api/data";
         _tableMode = _configuration["Tables:Mode"] ?? "all";
         _customTables = _configuration.GetSection("Tables:CustomTables").Get<List<string>>() ?? new List<string>();
     }

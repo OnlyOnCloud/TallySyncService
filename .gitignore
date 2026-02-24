@@ -37,3 +37,6 @@ msbuild.wrn
 *.md
 *.csv
 tally-database-loader/
+publish/
+*.log
+logs/
