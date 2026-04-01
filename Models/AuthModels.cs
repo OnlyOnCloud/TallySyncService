@@ -2,7 +2,7 @@ namespace TallySyncService.Models;
 
 public class AuthConfig
 {
-    public string BackendUrl { get; set; } = "https://dhub-backend.onlyoncloud.com";
+    public string BackendUrl { get; set; } = "http://localhost:8081";
     public string? JwtToken { get; set; }
     public uint? OrganisationId { get; set; }
 }

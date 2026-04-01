@@ -8,7 +8,7 @@
     "password": "8759"
   },
   "backend": {
-    "url": "https://dhub-backend.onlyoncloud.com/",
+    "url": "http://localhost:8081/",
     "timeout": 60
   },
   "tally": {

@@ -1,0 +1,2626 @@
+# Code Context Analysis
+
+Generated: 2026-04-01T19:51:35+05:30
+Files Scanned: 31
+Analysis Tools: regex, gosec, eslint, flawfinder
+
+## Security Summary
+
+**Total Issues: 17**
+
+- 🔴 CRITICAL: 0
+- 🟠 HIGH: 0
+- 🟡 MEDIUM: 0
+- 🟢 LOW: 17
+
+**Issues by Tool:**
+- regex: 17
+
+---
+
+## File: temp/server.js
+Language: javascript | Tokens: 455 | Size: 1823 bytes
+
+**⚠️ Security Issues:**
+
+🟢 **[LOW]** Line 9 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   console.log(`${req.method} ${req.url}`);
+   ```
+
+🟢 **[LOW]** Line 22 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   console.log(`Received ${records.length} records for ${tableName}`);
+   ```
+
+🟢 **[LOW]** Line 23 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   console.log(records);
+   ```
+
+🟢 **[LOW]** Line 24 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   console.log(`Chunk ${chunkNumber}/${totalChunks}, Mode: ${syncMode}`);
+   ```
+
+🟢 **[LOW]** Line 27 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   console.log(`${record.operation}: ${record.id}`);
+   ```
+
+🟢 **[LOW]** Line 55 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   console.log('Server running on port 3000');
+   ```
+
+🟢 **[LOW]** Line 56 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   console.log('Endpoints:');
+   ```
+
+🟢 **[LOW]** Line 57 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   console.log('  GET  /health - Health check');
+   ```
+
+🟢 **[LOW]** Line 58 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   console.log('  POST /data   - Sync data');
+   ```
+
+```javascript
+const express = require('express');
+const app = express();
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(middleware);
+
+function middleware(req, res, next) {
+  console.log(`${req.method} ${req.url}`);
+  next();
+}
+// Add health endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Data sync endpoint
+app.post('/data', async (req, res) => {
+  try {
+    const { tableName, records, syncMode, chunkNumber, totalChunks } = req.body;
+    
+    console.log(`Received ${records.length} records for ${tableName}`);
+    console.log(records);
+    console.log(`Chunk ${chunkNumber}/${totalChunks}, Mode: ${syncMode}`);
+    
+    for (const record of records) {
+      console.log(`${record.operation}: ${record.id}`);
+      
+      // For now, just log the data (replace with your DB logic)
+      // Handle based on operation type
+      // switch (record.operation) {
+      //   case 'INSERT':
+      //   case 'UPDATE':
+      //     await db.collection(tableName).updateOne(
+      //       { _id: record.id },
+      //       { $set: { ...record.data, _hash: record.hash } },
+      //       { upsert: true }
+      //     );
+      //     break;
+      //     
+      //   case 'DELETE':
+      //     await db.collection(tableName).deleteOne({ _id: record.id });
+      //     break;
+      // }
+    }
+    
+    res.json({ success: true, processed: records.length });
+  } catch (error) {
+    console.error('Error processing sync:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+  console.log('Endpoints:');
+  console.log('  GET  /health - Health check');
+  console.log('  POST /data   - Sync data');
+});
+```
+
+## File: temp/main.py
+Language: python | Tokens: 406 | Size: 1625 bytes
+
+**Imports:** re, os, requests, urllib.parse, urlparse
+
+**⚠️ Security Issues:**
+
+🟢 **[LOW]** Line 29 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   print(f"⚠️ Skipping (no filename): {url}")
+   ```
+
+🟢 **[LOW]** Line 35 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   print(f"⏭️ Already exists: {filename}")
+   ```
+
+🟢 **[LOW]** Line 38 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   print(f"⬇️ Downloading: {url}")
+   ```
+
+🟢 **[LOW]** Line 47 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   print(f"✅ Saved: {filename}")
+   ```
+
+🟢 **[LOW]** Line 50 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   print(f"❌ Failed: {url} → {e}")
+   ```
+
+🟢 **[LOW]** Line 56 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   print(f"🔎 Found {len(urls)} matching URLs")
+   ```
+
+🟢 **[LOW]** Line 59 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   print("🎉 Download complete")
+   ```
+
+```python
+import re
+import os
+import requests
+from urllib.parse import urlparse
+
+# ===== CONFIG =====
+INPUT_FILE = "input.txt"          # File containing text/HTML
+OUTPUT_DIR = "downloads"          # Folder to save files
+URL_PREFIX = r"https://help\.tallysolutions\.com/wp-content[^\s\"'>]+\.zip"
+TIMEOUT = 30
+# ==================
+
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+def extract_urls(file_path):
+    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+        content = f.read()
+
+    urls = re.findall(URL_PREFIX, content)
+    return list(set(urls))  # remove duplicates
+
+
+def download_file(url):
+    try:
+        parsed = urlparse(url)
+        filename = os.path.basename(parsed.path)
+
+        if not filename:
+            print(f"⚠️ Skipping (no filename): {url}")
+            return
+
+        output_path = os.path.join(OUTPUT_DIR, filename)
+
+        if os.path.exists(output_path):
+            print(f"⏭️ Already exists: {filename}")
+            return
+
+        print(f"⬇️ Downloading: {url}")
+        response = requests.get(url, timeout=TIMEOUT, stream=True)
+        response.raise_for_status()
+
+        with open(output_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+
+        print(f"✅ Saved: {filename}")
+
+    except Exception as e:
+        print(f"❌ Failed: {url} → {e}")
+
+
+def main():
+    urls = extract_urls(INPUT_FILE)
+    for url in urls :download_file(url)
+    print(f"🔎 Found {len(urls)} matching URLs")
+ 
+
+    print("🎉 Download complete")
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+## File: obj/Debug/net8.0/TallySyncService.AssemblyInfo.cs
+Language: c# | Tokens: 286 | Size: 1146 bytes
+
+**⚠️ Security Issues:**
+
+🟢 **[LOW]** Line 15 - Debug Code
+   *Debug code or security TODO in production*
+   Tool: regex
+   ```
+   [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+   ```
+
+```c#
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("dotnet-TallySyncService-1c741c29-70b6-4257-8d23-d2796e85af79")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("TallySyncService")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1735c480613c1026db9d620ad55dbbfaf2cc4d7f")]
+[assembly: System.Reflection.AssemblyProductAttribute("TallySyncService")]
+[assembly: System.Reflection.AssemblyTitleAttribute("TallySyncService")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+```
+
+## File: Commands/SetupCommand.cs
+Language: c# | Tokens: 3022 | Size: 12088 bytes
+
+```c#
+using System.Text.Json;
+using System.Runtime.InteropServices;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using TallySyncService.Models;
+using TallySyncService.Services;
+
+namespace TallySyncService.Commands;
+
+public class SetupCommand
+{
+    public static async Task ExecuteAsync()
+    {
+        Console.WriteLine("╔═══════════════════════════════════════════════╗");
+        Console.WriteLine("║   Tally Sync Service - Setup                  ║");
+        Console.WriteLine("╚═══════════════════════════════════════════════╝");
+        Console.WriteLine();
+
+        // Tally Configuration
+        Console.WriteLine("=== Tally Configuration ===");
+        Console.Write("Tally Server [localhost]: ");
+        var server = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(server)) server = "localhost";
+
+        Console.Write("Tally Port [9000]: ");
+        var portStr = Console.ReadLine();
+        var port = string.IsNullOrWhiteSpace(portStr) ? 9000 : int.Parse(portStr);
+
+        Console.Write("Company Name (leave empty to select at runtime): ");
+        var company = Console.ReadLine() ?? "";
+
+        // Platform-specific default Tally path
+        string defaultTallyPath;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            defaultTallyPath = "C:\\Program Files (x86)\\Tally.ERP 9\\tally.exe";
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            var homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            defaultTallyPath = $"{homeDir}/.wine/drive_c/Program Files/TallyPrime (3)/tally.exe";
+        }
+        else
+        {
+            defaultTallyPath = "";
+        }
+
+        Console.Write($"Tally Executable Path [{defaultTallyPath}]: ");
+        var tallyPath = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(tallyPath)) 
+            tallyPath = defaultTallyPath;
+
+        // Sync Configuration
+        Console.WriteLine("\n=== Sync Configuration ===");
+        Console.Write("Sync Interval (minutes) [15]: ");
+        var intervalStr = Console.ReadLine();
+        var interval = string.IsNullOrWhiteSpace(intervalStr) ? 15 : int.Parse(intervalStr);
+
+        Console.Write("Export Path [./exports]: ");
+        var exportPath = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(exportPath)) exportPath = "./exports";
+
+        // Backend Configuration
+        var backendBaseUrl = "http://localhost:8081";
+
+        // Create TallyConfig for use in custom table selection
+        var tallyConfig = new TallyConfig
+        {
+            Server = server,
+            Port = port,
+            Company = company,
+            TallyPath = tallyPath
+        };
+
+        // Table Selection Configuration
+        Console.WriteLine("\n=== Table Selection ===");
+        Console.WriteLine("Which tables do you want to export?");
+        Console.WriteLine("  1. Master Tables only");
+        Console.WriteLine("  2. Transaction Tables only");
+        Console.WriteLine("  3. All Tables (Master + Transaction)");
+        Console.WriteLine("  4. Custom Selection");
+        Console.Write("Select option [3]: ");
+        
+        var tableOption = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(tableOption)) tableOption = "3";
+
+        string tableMode = "all";
+        var customTables = new List<string>();
+
+        switch (tableOption)
+        {
+            case "1":
+                tableMode = "master";
+                Console.WriteLine("✓ Will export Master tables only");
+                break;
+            case "2":
+                tableMode = "transaction";
+                Console.WriteLine("✓ Will export Transaction tables only");
+                break;
+            case "3":
+                tableMode = "all";
+                Console.WriteLine("✓ Will export All tables");
+                break;
+            case "4":
+                tableMode = "custom";
+                customTables = await SelectCustomTablesAsync(tallyConfig);
+                Console.WriteLine($"✓ Will export {customTables.Count} custom table(s)");
+                break;
+            default:
+                tableMode = "all";
+                Console.WriteLine("✓ Invalid option, defaulting to All tables");
+                break;
+        }
+
+        // Read existing appsettings.json to preserve Serilog configuration
+        var appSettings = new Dictionary<string, object>();
+        if (File.Exists("appsettings.json"))
+        {
+            var existingJson = await File.ReadAllTextAsync("appsettings.json");
+            var existing = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(existingJson);
+            if (existing != null && existing.ContainsKey("Serilog"))
+            {
+                appSettings["Serilog"] = JsonSerializer.Deserialize<object>(existing["Serilog"].GetRawText())!;
+            }
+        }
+
+        // Build new configuration structure
+        appSettings["Tally"] = new Dictionary<string, object>
+        {
+            { "Server", server },
+            { "Port", port },
+            { "Company", company },
+            { "TallyPath", tallyPath },
+            { "TimeoutSeconds", 60 },
+            { "DefinitionFile", "tally-export-config.yaml" }
+        };
+
+        appSettings["Sync"] = new Dictionary<string, object>
+        {
+            { "IntervalMinutes", interval },
+            { "ExportPath", exportPath }
+        };
+
+        appSettings["Backend"] = new Dictionary<string, object>
+        {
+            { "Url", $"{backendBaseUrl}/api/data" }
+        };
+
+        appSettings["Tables"] = new Dictionary<string, object>
+        {
+            { "Mode", tableMode },
+            { "CustomTables", customTables }
+        };
+
+        // Save configuration
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        var json = JsonSerializer.Serialize(appSettings, options);
+        await File.WriteAllTextAsync("appsettings.json", json);
+
+        Console.WriteLine("\n✅ Configuration saved to appsettings.json");
+        Console.WriteLine();
+
+        // Test Tally connection
+        Console.WriteLine("Testing Tally connection...");
+
+        // Create temporary service collection for testing
+        var services = new ServiceCollection();
+        services.AddHttpClient();
+        services.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Warning));
+        var serviceProvider = services.BuildServiceProvider();
+
+        var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+        var logger = serviceProvider.GetRequiredService<ILogger<TallyXmlService>>();
+        var tallyService = new TallyXmlService(tallyConfig, httpClientFactory, logger);
+        
+        try
+        {
+            var connected = await tallyService.TestConnectionAsync();
+            if (connected)
+            {
+                Console.WriteLine($"✓ Successfully connected to Tally at {server}:{port}");
+                
+                var companies = await tallyService.GetCompanyListAsync();
+                Console.WriteLine($"✓ Found {companies.Count} company(ies):");
+                foreach (var c in companies)
+                {
+                    Console.WriteLine($"  • {c.Name}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"✗ Could not connect to Tally at {server}:{port}");
+                Console.WriteLine("  Make sure Tally is running and XML interface is enabled");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"✗ Connection error: {ex.Message}");
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Setup complete! You can now:");
+        Console.WriteLine("  1. Login: dotnet run -- --login");
+        Console.WriteLine("  2. Start sync: dotnet run");
+        Console.WriteLine();
+        Console.WriteLine($"Backend configured: {backendBaseUrl}");
+    }
+
+    private static async Task<List<string>> SelectCustomTablesAsync(TallyConfig tallyConfig)
+    {
+        Console.WriteLine("\n=== Custom Table Selection ===");
+        Console.WriteLine("Loading table definitions from YAML...");
+        
+        try
+        {
+            var yamlLoader = new YamlConfigLoader(tallyConfig.DefinitionFile);
+            await yamlLoader.LoadAsync();
+            
+            var tablesByCategory = yamlLoader.GetTableNamesByCategory();
+            var selectedTables = new List<string>();
+
+            // Display Master tables
+            Console.WriteLine("\n--- Master Tables ---");
+            var masterTables = tablesByCategory["Master"];
+            for (int i = 0; i < masterTables.Count; i++)
+            {
+                Console.WriteLine($"  {i + 1}. {masterTables[i]}");
+            }
+
+            Console.Write("\nSelect Master tables (comma-separated numbers, or 'all' for all, or 'none'): ");
+            var masterSelection = Console.ReadLine()?.Trim().ToLower();
+            
+            if (masterSelection == "all")
+            {
+                selectedTables.AddRange(masterTables);
+                Console.WriteLine($"✓ Selected all {masterTables.Count} master tables");
+            }
+            else if (masterSelection != "none" && !string.IsNullOrWhiteSpace(masterSelection))
+            {
+                var indices = masterSelection.Split(',')
+                    .Select(s => s.Trim())
+                    .Where(s => int.TryParse(s, out _))
+                    .Select(s => int.Parse(s) - 1)
+                    .Where(i => i >= 0 && i < masterTables.Count);
+                
+                foreach (var index in indices)
+                {
+                    selectedTables.Add(masterTables[index]);
+                }
+                Console.WriteLine($"✓ Selected {indices.Count()} master table(s)");
+            }
+
+            // Display Transaction tables
+            Console.WriteLine("\n--- Transaction Tables ---");
+            var transactionTables = tablesByCategory["Transaction"];
+            for (int i = 0; i < transactionTables.Count; i++)
+            {
+                Console.WriteLine($"  {i + 1}. {transactionTables[i]}");
+            }
+
+            Console.Write("\nSelect Transaction tables (comma-separated numbers, or 'all' for all, or 'none'): ");
+            var transactionSelection = Console.ReadLine()?.Trim().ToLower();
+            
+            if (transactionSelection == "all")
+            {
+                selectedTables.AddRange(transactionTables);
+                Console.WriteLine($"✓ Selected all {transactionTables.Count} transaction tables");
+            }
+            else if (transactionSelection != "none" && !string.IsNullOrWhiteSpace(transactionSelection))
+            {
+                var indices = transactionSelection.Split(',')
+                    .Select(s => s.Trim())
+                    .Where(s => int.TryParse(s, out _))
+                    .Select(s => int.Parse(s) - 1)
+                    .Where(i => i >= 0 && i < transactionTables.Count);
+                
+                foreach (var index in indices)
+                {
+                    selectedTables.Add(transactionTables[index]);
+                }
+                Console.WriteLine($"✓ Selected {indices.Count()} transaction table(s)");
+            }
+
+            if (selectedTables.Count == 0)
+            {
+                Console.WriteLine("⚠️  No tables selected, defaulting to all tables");
+                selectedTables.AddRange(masterTables);
+                selectedTables.AddRange(transactionTables);
+            }
+
+            return selectedTables;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"✗ Error loading tables: {ex.Message}");
+            Console.WriteLine("Defaulting to all tables");
+            return new List<string>();
+        }
+    }
+}
+
+```
+
+## File: TallySyncWorker.cs
+Language: c# | Tokens: 2515 | Size: 10061 bytes
+
+```c#
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using TallySyncService.Models;
+using TallySyncService.Services;
+
+namespace TallySyncService;
+
+public class TallySyncWorker : BackgroundService
+{
+    private readonly ILogger<TallySyncWorker> _logger;
+    private readonly IConfiguration _configuration;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly YamlConfigLoader _yamlLoader;
+    private readonly TallyConfig _config;
+    private readonly int _intervalMinutes;
+    private readonly string _backendUrl;
+    private readonly string _tableMode;
+    private readonly List<string> _customTables;
+
+    public TallySyncWorker(
+        ILogger<TallySyncWorker> logger,
+        IConfiguration configuration,
+        IHttpClientFactory httpClientFactory,
+        YamlConfigLoader yamlLoader)
+    {
+        _logger = logger;
+        _configuration = configuration;
+        _httpClientFactory = httpClientFactory;
+        _yamlLoader = yamlLoader;
+        
+        // Load configuration from appsettings.json
+        _config = new TallyConfig
+        {
+            Server = _configuration["Tally:Server"] ?? "localhost",
+            Port = int.Parse(_configuration["Tally:Port"] ?? "9000"),
+            Company = _configuration["Tally:Company"] ?? "",
+            TallyPath = _configuration["Tally:TallyPath"] ?? "",
+            DefinitionFile = _configuration["Tally:DefinitionFile"] ?? "tally-export-config.yaml"
+        };
+        
+        _intervalMinutes = int.Parse(_configuration["Sync:IntervalMinutes"] ?? "15");
+        _backendUrl = _configuration["Backend:Url"] ?? "http://localhost:8081/api/data";
+        _tableMode = _configuration["Tables:Mode"] ?? "all";
+        _customTables = _configuration.GetSection("Tables:CustomTables").Get<List<string>>() ?? new List<string>();
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation("╔═══════════════════════════════════════════════╗");
+        _logger.LogInformation("║   Tally CSV Sync Service (Background)         ║");
+        _logger.LogInformation("║   Syncing every {IntervalMinutes} minutes                    ║", _intervalMinutes);
+        _logger.LogInformation("╚═══════════════════════════════════════════════╝");
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await PerformSyncAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Sync error occurred");
+            }
+
+            // Wait for the specified interval
+            _logger.LogInformation("Next sync in {IntervalMinutes} minutes...", _intervalMinutes);
+            await Task.Delay(TimeSpan.FromMinutes(_intervalMinutes), stoppingToken);
+        }
+    }
+
+    private async Task PerformSyncAsync()
+    {
+        _logger.LogInformation("═══════════════════════════════════════════════");
+        _logger.LogInformation("Starting sync at {Timestamp}", DateTime.Now);
+        _logger.LogInformation("═══════════════════════════════════════════════");
+
+        try
+        {
+            // Initialize services with dependency injection
+            var httpClient = _httpClientFactory.CreateClient();
+            var tallyXmlService = new TallyXmlService(_config, _httpClientFactory, _logger);
+            var xmlGenerator = new XmlGenerator();
+            var exporter = new TallyDataExporter(tallyXmlService, xmlGenerator, _config);
+            await _yamlLoader.LoadAsync();
+            var uploadService = new BackendUploadService(_backendUrl, _httpClientFactory, _logger);
+
+            // Test Tally connection
+            _logger.LogInformation("Testing connection to Tally...");
+            if (!await tallyXmlService.TestConnectionAsync())
+            {
+                _logger.LogWarning("Unable to connect to Tally at {Server}:{Port}", _config.Server, _config.Port);
+                
+                // Try to auto-start Tally
+                _logger.LogInformation("Attempting to start Tally automatically...");
+                
+                var notificationService = new NotificationService();
+                var tallyProcessService = new TallyProcessService(_config.TallyPath);
+                
+                // Send notification
+                notificationService.SendNotification(
+                    "Tally Sync Service",
+                    "Tally server not running. Please select the company within 15 seconds to complete the sync."
+                );
+                _logger.LogInformation("Notification sent to user");
+                
+                // Launch Tally if not already running
+                 
+                    if (!tallyProcessService.LaunchTally())
+                    {
+                        _logger.LogWarning("Failed to launch Tally. Skipping this sync cycle.");
+                        return;
+                    }
+                 
+                
+                // Wait 15 seconds for user to select company
+                _logger.LogInformation("Waiting 15 seconds for user to select company...");
+                await Task.Delay(TimeSpan.FromSeconds(15));
+                
+                // Test connection again
+                _logger.LogInformation("Testing connection to Tally again...");
+                if (!await tallyXmlService.TestConnectionAsync())
+                {
+                    _logger.LogWarning("Still unable to connect to Tally. Skipping this sync cycle.");
+                    _logger.LogInformation("Will retry in {IntervalMinutes} minutes.", _intervalMinutes);
+                    return;
+                }
+                
+                _logger.LogInformation("Successfully connected to Tally after auto-start");
+            }
+            else
+            {
+                _logger.LogInformation("Connected to Tally");
+            }
+
+            // Load table definitions
+            var allTables = GetTablesToExport(_yamlLoader);
+            _logger.LogInformation("Loaded {TableCount} table(s) to export (mode: {TableMode})", allTables.Count, _tableMode);
+
+            // Get company
+            var companies = await tallyXmlService.GetCompanyListAsync();
+            if (companies.Count == 0)
+            {
+                _logger.LogWarning("No companies found");
+                return;
+            }
+
+            var company = companies.FirstOrDefault(c => c.Name == _config.Company) ?? companies[0];
+            _config.Company = company.Name;
+            _logger.LogInformation("Using company: {CompanyName}", company.Name);
+
+            // Create temporary export directory
+            var tempDir = Path.Combine(Path.GetTempPath(), $"tally_export_{Guid.NewGuid():N}");
+            Directory.CreateDirectory(tempDir);
+
+            _logger.LogInformation("Exporting {TableCount} tables...", allTables.Count);
+            _logger.LogInformation("─────────────────────────────────────────────────");
+
+            // Export all tables
+            var exportedFiles = await exporter.ExportMultipleTablesToCsvAsync(allTables, tempDir);
+
+            _logger.LogInformation("─────────────────────────────────────────────────");
+            _logger.LogInformation("Exported {FileCount} files", exportedFiles.Count);
+
+            // Upload to backend
+            _logger.LogInformation("Uploading to backend ({BackendUrl})...", _backendUrl);
+            _logger.LogInformation("─────────────────────────────────────────────────");
+
+            // Get organisation ID from login (saved in ~/.tally_org)
+            var organisationId = AuthService.LoadOrganisationId();
+            if (!organisationId.HasValue)
+            {
+                _logger.LogWarning("No organization selected. Please run: dotnet run -- --login");
+                return;
+            }
+
+            var uploadedCount = await uploadService.UploadMultipleCsvFilesAsync(
+                exportedFiles, 
+                (int)organisationId.Value);
+
+            _logger.LogInformation("─────────────────────────────────────────────────");
+            _logger.LogInformation("Uploaded {UploadedCount}/{TotalCount} files successfully", uploadedCount, exportedFiles.Count);
+
+            // Cleanup temporary directory
+            try
+            {
+                Directory.Delete(tempDir, true);
+                _logger.LogInformation("Cleaned up temporary files");
+            }
+            catch (Exception cleanupEx)
+            {
+                _logger.LogWarning(cleanupEx, "Failed to cleanup temporary files");
+            }
+
+            _logger.LogInformation("Sync completed successfully at {Timestamp}", DateTime.Now);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Sync failed");
+        }
+    }
+
+    private List<TableDefinition> GetTablesToExport(YamlConfigLoader yamlLoader)
+    {
+        return _tableMode switch
+        {
+            "master" => yamlLoader.GetMasterTables(),
+            "transaction" => yamlLoader.GetTransactionTables(),
+            "custom" => _customTables.Count > 0 
+                ? yamlLoader.GetTablesByNames(_customTables) 
+                : yamlLoader.GetAllTables(),
+            _ => yamlLoader.GetAllTables()
+        };
+    }
+}
+
+```
+
+## File: Services/AuthService.cs
+Language: c# | Tokens: 2154 | Size: 8619 bytes
+
+```c#
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using TallySyncService.Models;
+
+namespace TallySyncService.Services;
+
+public class AuthService
+{
+    private readonly string _backendUrl;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger _logger;
+    private RSA? _rsa;
+
+    public AuthService(string backendUrl, IHttpClientFactory httpClientFactory, ILogger logger)
+    {
+        _backendUrl = backendUrl;
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
+    }
+
+    public async Task<bool> SendOtpEmailAsync(string email)
+    {
+        try
+        {
+            // Get public key from backend
+            await LoadPublicKeyAsync();
+
+            // Encrypt email
+            var encryptedEmail = EncryptData(email);
+
+            // Send OTP request
+            var request = new Dictionary<string, string>
+            {
+                { "email", encryptedEmail }
+            };
+
+            var jsonContent = JsonSerializer.Serialize(request);
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            var httpClient = _httpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync($"{_backendUrl}/sendotpmail", content);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var responseText = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation("OTP sent successfully: {Response}", responseText);
+                Console.WriteLine($"✓ {responseText}");
+                return true;
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("Failed to send OTP: {Error}", error);
+                Console.WriteLine($"✗ Failed to send OTP: {error}");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending OTP");
+            Console.WriteLine($"✗ Error sending OTP: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<string?> ValidateOtpAsync(string email, string code)
+    {
+        try
+        {
+            // Encrypt email and code
+            var encryptedEmail = EncryptData(email);
+            var encryptedCode = EncryptData(code);
+
+            // Send validation request
+            var request = new Dictionary<string, string>
+            {
+                { "email", encryptedEmail },
+                { "code", encryptedCode }
+            };
+
+            var jsonContent = JsonSerializer.Serialize(request);
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            var httpClient = _httpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync($"{_backendUrl}/validateotp", content);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var responseText = await response.Content.ReadAsStringAsync();
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var loginResponse = JsonSerializer.Deserialize<LoginResponse>(responseText, options);
+                
+                if (loginResponse != null && !string.IsNullOrEmpty(loginResponse.Token))
+                {
+                    _logger.LogInformation("Login successful");
+                    Console.WriteLine("✓ Login successful!");
+                    return loginResponse.Token;
+                }
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("Invalid OTP: {Error}", error);
+                Console.WriteLine($"✗ Invalid OTP: {error}");
+            }
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error validating OTP");
+            Console.WriteLine($"✗ Error validating OTP: {ex.Message}");
+            return null;
+        }
+    }
+
+    private async Task LoadPublicKeyAsync()
+    {
+        try
+        {
+            var httpClient = _httpClientFactory.CreateClient();
+            var response = await httpClient.GetAsync($"{_backendUrl}/key");
+            response.EnsureSuccessStatusCode();
+
+            var responseText = await response.Content.ReadAsStringAsync();
+            var keyResponse = JsonSerializer.Deserialize<Dictionary<string, string>>(responseText);
+
+            if (keyResponse != null && keyResponse.ContainsKey("key"))
+            {
+                var publicKeyPem = keyResponse["key"];
+                _rsa = RSA.Create();
+                _rsa.ImportFromPem(publicKeyPem);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load public key");
+            throw new Exception($"Failed to load public key: {ex.Message}", ex);
+        }
+    }
+
+    public async Task<List<UserOrganisation>?> GetUserOrganisationsAsync(string token)
+    {
+        try
+        {
+            var httpClient = _httpClientFactory.CreateClient();
+            
+            // Create request with per-request Authorization header
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{_backendUrl}/users/orgs");
+            request.Headers.Add("Authorization", token);
+
+            var response = await httpClient.SendAsync(request);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var responseText = await response.Content.ReadAsStringAsync();
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var orgs = JsonSerializer.Deserialize<List<UserOrganisation>>(responseText, options);
+                return orgs;
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("Failed to fetch organizations: {Error}", error);
+                Console.WriteLine($"✗ Failed to fetch organizations: {error}");
+            }
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching organizations");
+            Console.WriteLine($"✗ Error fetching organizations: {ex.Message}");
+            return null;
+        }
+    }
+
+    private string EncryptData(string data)
+    {
+        if (_rsa == null)
+            throw new InvalidOperationException("Public key not loaded");
+
+        var dataBytes = Encoding.UTF8.GetBytes(data);
+        // Use OAEP with SHA256 to match Go backend's rsa.DecryptOAEP(sha256.New(), ...)
+        var encryptedBytes = _rsa.Encrypt(dataBytes, RSAEncryptionPadding.OaepSHA256);
+        return Convert.ToBase64String(encryptedBytes);
+    }
+
+    public static void SaveToken(string token, uint? organisationId = null)
+    {
+        var tokenPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".tally_token");
+        var orgPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".tally_org");
+        
+        File.WriteAllText(tokenPath, token);
+        
+        if (organisationId.HasValue)
+        {
+            File.WriteAllText(orgPath, organisationId.Value.ToString());
+        }
+    }
+
+    public static string? LoadToken()
+    {
+        var tokenPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".tally_token");
+        
+        if (File.Exists(tokenPath))
+        {
+            return File.ReadAllText(tokenPath);
+        }
+
+        return null;
+    }
+
+    public static uint? LoadOrganisationId()
+    {
+        var orgPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".tally_org");
+        
+        if (File.Exists(orgPath))
+        {
+            var content = File.ReadAllText(orgPath);
+            if (uint.TryParse(content, out var orgId))
+            {
+                return orgId;
+            }
+        }
+
+        return null;
+    }
+
+    public static void ClearToken()
+    {
+        var tokenPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".tally_token");
+        var orgPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".tally_org");
+        
+        if (File.Exists(tokenPath))
+        {
+            File.Delete(tokenPath);
+        }
+        
+        if (File.Exists(orgPath))
+        {
+            File.Delete(orgPath);
+        }
+    }
+}
+
+```
+
+## File: Services/XmlGenerator.cs
+Language: c# | Tokens: 1633 | Size: 6534 bytes
+
+```c#
+using System.Text;
+using System.Text.RegularExpressions;
+using TallySyncService.Models;
+
+namespace TallySyncService.Services;
+
+public class XmlGenerator
+{
+    public string GenerateXmlFromTableDefinition(
+        TableDefinition table, 
+        Dictionary<string, string> substitutions)
+    {
+        var xml = new StringBuilder();
+        
+        // XML Header
+        xml.Append(@"<?xml version=""1.0"" encoding=""utf-8""?>");
+        xml.Append("<ENVELOPE><HEADER><VERSION>1</VERSION><TALLYREQUEST>Export</TALLYREQUEST>");
+        xml.Append("<TYPE>Data</TYPE><ID>TallyDatabaseLoaderReport</ID></HEADER>");
+        xml.Append("<BODY><DESC><STATICVARIABLES>");
+        xml.Append("<SVEXPORTFORMAT>XML (Data Interchange)</SVEXPORTFORMAT>");
+        xml.Append($"<SVFROMDATE>{{fromDate}}</SVFROMDATE>");
+        xml.Append($"<SVTODATE>{{toDate}}</SVTODATE>");
+        
+        if (substitutions.ContainsKey("targetCompany") && !string.IsNullOrEmpty(substitutions["targetCompany"]))
+        {
+            xml.Append($"<SVCURRENTCOMPANY>{{targetCompany}}</SVCURRENTCOMPANY>");
+        }
+        
+        xml.Append("</STATICVARIABLES><TDL><TDLMESSAGE>");
+        xml.Append(@"<REPORT NAME=""TallyDatabaseLoaderReport""><FORMS>MyForm</FORMS></REPORT>");
+        xml.Append(@"<FORM NAME=""MyForm""><PARTS>MyPart01</PARTS></FORM>");
+
+        // Build routes from collection
+        var routes = table.Collection.Split('.');
+        var targetCollection = routes[0];
+        var routesList = new List<string> { "MyCollection" };
+        if (routes.Length > 1)
+        {
+            routesList.AddRange(routes.Skip(1));
+        }
+
+        // Generate PART elements
+        for (int i = 0; i < routesList.Count; i++)
+        {
+            var partName = $"MyPart{(i + 1):D2}";
+            var lineName = $"MyLine{(i + 1):D2}";
+            xml.Append($@"<PART NAME=""{partName}"">");
+            xml.Append($"<LINES>{lineName}</LINES>");
+            xml.Append($"<REPEAT>{lineName} : {routesList[i]}</REPEAT>");
+            xml.Append("<SCROLLED>Vertical</SCROLLED></PART>");
+        }
+
+        // Generate LINE elements
+        for (int i = 0; i < routesList.Count - 1; i++)
+        {
+            var lineName = $"MyLine{(i + 1):D2}";
+            var partName = $"MyPart{(i + 2):D2}";
+            xml.Append($@"<LINE NAME=""{lineName}"">");
+            xml.Append("<FIELDS>FldBlank</FIELDS>");
+            xml.Append($"<EXPLODE>{partName}</EXPLODE></LINE>");
+        }
+
+        // Last LINE with fields
+        var lastLine = $"MyLine{routesList.Count:D2}";
+        xml.Append($@"<LINE NAME=""{lastLine}""><FIELDS>");
+        
+        for (int i = 0; i < table.Fields.Count; i++)
+        {
+            xml.Append($"Fld{(i + 1):D2}");
+            if (i < table.Fields.Count - 1) xml.Append(",");
+        }
+        xml.Append("</FIELDS></LINE>");
+
+        // Generate FIELD elements
+        for (int i = 0; i < table.Fields.Count; i++)
+        {
+            var field = table.Fields[i];
+            var fieldName = $"Fld{(i + 1):D2}";
+            xml.Append($@"<FIELD NAME=""{fieldName}"">");
+            
+            var fieldExpr = GenerateFieldExpression(field);
+            xml.Append($"<SET>{fieldExpr}</SET>");
+            xml.Append($"<XMLTAG>F{(i + 1):D2}</XMLTAG>");
+            xml.Append("</FIELD>");
+        }
+
+        // Blank field
+        xml.Append(@"<FIELD NAME=""FldBlank""><SET>""""</SET></FIELD>");
+
+        // Collection
+        xml.Append($@"<COLLECTION NAME=""MyCollection""><TYPE>{targetCollection}</TYPE>");
+        
+        // Fetch
+        if (table.Fetch != null && table.Fetch.Count > 0)
+        {
+            xml.Append($"<FETCH>{string.Join(",", table.Fetch)}</FETCH>");
+        }
+
+        // Filters
+        if (table.Filters != null && table.Filters.Count > 0)
+        {
+            xml.Append("<FILTER>");
+            for (int i = 0; i < table.Filters.Count; i++)
+            {
+                xml.Append($"Fltr{(i + 1):D2}");
+                if (i < table.Filters.Count - 1) xml.Append(",");
+            }
+            xml.Append("</FILTER>");
+        }
+
+        xml.Append("</COLLECTION>");
+
+        // Filter definitions
+        if (table.Filters != null && table.Filters.Count > 0)
+        {
+            for (int i = 0; i < table.Filters.Count; i++)
+            {
+                xml.Append($@"<SYSTEM TYPE=""Formulae"" NAME=""Fltr{(i + 1):D2}"">");
+                xml.Append(EscapeXml(table.Filters[i]));
+                xml.Append("</SYSTEM>");
+            }
+        }
+
+        xml.Append("</TDLMESSAGE></TDL></DESC></BODY></ENVELOPE>");
+
+        return SubstituteTdlParameters(xml.ToString(), substitutions);
+    }
+
+    private string GenerateFieldExpression(FieldDefinition field)
+    {
+        var fieldName = field.Field;
+        var fieldType = field.Type;
+
+        // Check if it's a simple field reference or complex expression
+        if (Regex.IsMatch(fieldName, @"^(\.\.)?[a-zA-Z0-9_]+$"))
+        {
+            // Simple field reference
+            return fieldType switch
+            {
+                "text" => $"${fieldName}",
+                "logical" => $"if ${fieldName} then 1 else 0",
+                "date" => $@"if $$IsEmpty:${fieldName} then $$StrByCharCode:241 else $$PyrlYYYYMMDDFormat:${fieldName}:""-""",
+                "number" => $@"if $$IsEmpty:${fieldName} then ""0"" else $$String:${fieldName}",
+                "amount" => $@"$$StringFindAndReplace:(if $$IsDebit:${fieldName} then -$$NumValue:${fieldName} else $$NumValue:${fieldName}):""(-)"":""-""",
+                "quantity" => $@"$$StringFindAndReplace:(if $$IsInwards:${fieldName} then $$Number:$$String:${fieldName}:""TailUnits"" else -$$Number:$$String:${fieldName}:""TailUnits""):""(-)"":""-""",
+                "rate" => $"if $$IsEmpty:${fieldName} then 0 else $$Number:${fieldName}",
+                _ => fieldName
+            };
+        }
+        else
+        {
+            // Complex expression - use as is
+            return fieldName;
+        }
+    }
+
+    public string SubstituteTdlParameters(string xml, Dictionary<string, string> substitutions)
+    {
+        foreach (var kvp in substitutions)
+        {
+            var pattern = $"{{{kvp.Key}}}";
+            xml = xml.Replace(pattern, EscapeXml(kvp.Value));
+        }
+        return xml;
+    }
+
+    private string EscapeXml(string value)
+    {
+        return value
+            .Replace("&", "&amp;")
+            .Replace("<", "&lt;")
+            .Replace(">", "&gt;")
+            .Replace("\"", "&quot;")
+            .Replace("'", "&apos;");
+    }
+}
+
+```
+
+## File: Services/TallyDataExporter.cs
+Language: c# | Tokens: 1471 | Size: 5887 bytes
+
+```c#
+using System.Text;
+using System.Text.RegularExpressions;
+using TallySyncService.Models;
+
+namespace TallySyncService.Services;
+
+public class TallyDataExporter
+{
+    private readonly TallyXmlService _tallyXmlService;
+    private readonly XmlGenerator _xmlGenerator;
+    private readonly TallyConfig _config;
+
+    public TallyDataExporter(
+        TallyXmlService tallyXmlService,
+        XmlGenerator xmlGenerator,
+        TallyConfig config)
+    {
+        _tallyXmlService = tallyXmlService;
+        _xmlGenerator = xmlGenerator;
+        _config = config;
+    }
+
+    public async Task<string> ExportTableToCsvAsync(TableDefinition table, string outputDirectory)
+    {
+        Console.WriteLine($"Exporting table: {table.Name}...");
+        
+        // Prepare substitutions
+        var substitutions = new Dictionary<string, string>
+        {
+            { "fromDate", ParseDate(_config.FromDate) },
+            { "toDate", ParseDate(_config.ToDate) },
+            { "targetCompany", _config.Company }
+        };
+
+        // Generate XML
+        var xml = _xmlGenerator.GenerateXmlFromTableDefinition(table, substitutions);
+
+        // Post to Tally
+        var response = await _tallyXmlService.PostTallyXmlAsync(xml);
+
+        // Process TDL output
+        var processedData = ProcessTdlOutput(response);
+
+        // Add column headers
+        var headers = string.Join("\t", table.Fields.Select(f => f.Name));
+        var csvContent = headers + processedData;
+
+        // Write to file
+        var outputPath = Path.Combine(outputDirectory, $"{table.Name}.csv");
+        await ConvertAndWriteCsvAsync(csvContent, outputPath, table.Fields);
+
+        Console.WriteLine($"  ✓ Exported {table.Name} to {outputPath}");
+        return outputPath;
+    }
+
+    public async Task<List<string>> ExportMultipleTablesToCsvAsync(
+        List<TableDefinition> tables, 
+        string outputDirectory)
+    {
+        var exportedFiles = new List<string>();
+
+        // Create output directory if it doesn't exist
+        Directory.CreateDirectory(outputDirectory);
+
+        foreach (var table in tables)
+        {
+            try
+            {
+                var filePath = await ExportTableToCsvAsync(table, outputDirectory);
+                exportedFiles.Add(filePath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"  ✗ Error exporting {table.Name}: {ex.Message}");
+            }
+        }
+
+        return exportedFiles;
+    }
+
+    public string ProcessTdlOutput(string rawXml)
+    {
+        var result = rawXml;
+
+        try
+        {
+            // Eliminate ENVELOPE TAG
+            result = result.Replace("<ENVELOPE>", "");
+            result = result.Replace("</ENVELOPE>", "");
+
+            // Eliminate blank tag
+            result = Regex.Replace(result, @"<FLDBLANK></FLDBLANK>", "");
+
+            // Remove empty lines
+            result = Regex.Replace(result, @"\s+\r\n", "");
+
+            // Remove all line breaks
+            result = result.Replace("\r\n", "").Replace("\n", "");
+
+            // Replace all tabs with a single space
+            result = result.Replace("\t", " ");
+
+            // Trim left space
+            result = Regex.Replace(result, @"\s+<F", "<F");
+
+            // Remove XML end tags
+            result = Regex.Replace(result, @"</F\d+>", "");
+
+            // Append line break to each row start and remove first field XML start tag
+            result = Regex.Replace(result, @"<F01>", "\r\n");
+
+            // Replace XML start tags with tab separator
+            result = Regex.Replace(result, @"<F\d+>", "\t");
+
+            // Escape special characters
+            result = result.Replace("&amp;", "&");
+            result = result.Replace("&lt;", "<");
+            result = result.Replace("&gt;", ">");
+            result = result.Replace("&quot;", "\"");
+            result = result.Replace("&apos;", "'");
+            result = result.Replace("&tab;", "");
+
+            // Remove all unreadable character escapes
+            result = Regex.Replace(result, @"&#\d+;", "");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error processing TDL output: {ex.Message}");
+        }
+
+        return result;
+    }
+
+    private async Task ConvertAndWriteCsvAsync(
+        string tabDelimitedData, 
+        string outputPath,
+        List<FieldDefinition> fields)
+    {
+        var lines = tabDelimitedData.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+        var csvLines = new List<string>();
+
+        foreach (var line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            var values = line.Split('\t');
+            var csvValues = new List<string>();
+
+            for (int i = 0; i < values.Length; i++)
+            {
+                var value = values[i];
+                var fieldType = i < fields.Count ? fields[i].Type : "text";
+
+                // Replace special null character
+                value = value.Replace("ñ", "");
+
+                // Escape double quotes
+                value = value.Replace("\"", "\"\"");
+
+                // Quote text and date fields
+                if (fieldType == "text" || fieldType == "date")
+                {
+                    csvValues.Add($"\"{value}\"");
+                }
+                else
+                {
+                    csvValues.Add(value);
+                }
+            }
+
+            csvLines.Add(string.Join(",", csvValues));
+        }
+
+        await File.WriteAllTextAsync(outputPath, string.Join("\r\n", csvLines), Encoding.UTF8);
+    }
+
+    private string ParseDate(string dateStr)
+    {
+        if (dateStr == "auto")
+        {
+            return DateTime.Now.ToString("yyyy-MM-dd");
+        }
+
+        if (DateTime.TryParse(dateStr, out var date))
+        {
+            return date.ToString("yyyy-MM-dd");
+        }
+
+        return dateStr;
+    }
+}
+
+```
+
+## File: Services/TallyXmlService.cs
+Language: c# | Tokens: 1174 | Size: 4699 bytes
+
+```c#
+using System.Text;
+using Microsoft.Extensions.Logging;
+using TallySyncService.Models;
+
+namespace TallySyncService.Services;
+
+public class TallyXmlService
+{
+    private readonly TallyConfig _config;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger _logger;
+
+    public TallyXmlService(TallyConfig config, IHttpClientFactory httpClientFactory, ILogger logger)
+    {
+        _config = config;
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
+    }
+
+    public async Task<string> PostTallyXmlAsync(string xmlPayload)
+    {
+        try
+        {
+            var httpClient = _httpClientFactory.CreateClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(30);
+            
+            var content = new StringContent(xmlPayload, Encoding.Unicode, "text/xml");
+            var url = $"http://{_config.Server}:{_config.Port}";
+            
+            var response = await httpClient.PostAsync(url, content);
+            response.EnsureSuccessStatusCode();
+            
+            // Read response as UTF-16 LE (Unicode)
+            var responseBytes = await response.Content.ReadAsByteArrayAsync();
+            var responseText = Encoding.Unicode.GetString(responseBytes);
+            
+            return responseText;
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Unable to connect to Tally at {Server}:{Port}", _config.Server, _config.Port);
+            throw new Exception($"Unable to connect to Tally. Ensure Tally is running and XML port is enabled at {_config.Server}:{_config.Port}", ex);
+        }
+    }
+
+    public async Task<List<CompanyInfo>> GetCompanyListAsync()
+    {
+        var xml = @"<?xml version=""1.0"" encoding=""utf-8""?><ENVELOPE><HEADER><VERSION>1</VERSION><TALLYREQUEST>Export</TALLYREQUEST><TYPE>Data</TYPE><ID>TallyDatabaseLoaderReport</ID></HEADER><BODY><DESC><STATICVARIABLES><SVEXPORTFORMAT>ASCII (Comma Delimited)</SVEXPORTFORMAT></STATICVARIABLES><TDL><TDLMESSAGE><REPORT NAME=""TallyDatabaseLoaderReport""><FORMS>MyForm</FORMS></REPORT><FORM NAME=""MyForm""><PARTS>MyPart</PARTS></FORM><PART NAME=""MyPart""><LINES>MyLine</LINES><REPEAT>MyLine : MyCollection</REPEAT><SCROLLED>Vertical</SCROLLED></PART><LINE NAME=""MyLine""><FIELDS>FldGuid,FldName,FldBooksFrom,FldLastVoucherDate,FldLastAlterIdMaster,FldLastAlterIdTransaction,FldEOL</FIELDS></LINE><FIELD NAME=""FldGuid""><SET>$Guid</SET></FIELD><FIELD NAME=""FldName""><SET>$$StringFindAndReplace:$Name:'""':'""'</SET></FIELD><FIELD NAME=""FldBooksFrom""><SET>(($$YearOfDate:$BooksFrom)*10000)+(($$MonthOfDate:$BooksFrom)*100)+(($$DayOfDate:$BooksFrom)*1)</SET></FIELD><FIELD NAME=""FldLastVoucherDate""><SET>(($$YearOfDate:$LastVoucherDate)*10000)+(($$MonthOfDate:$LastVoucherDate)*100)+(($$DayOfDate:$LastVoucherDate)*1)</SET></FIELD><FIELD NAME=""FldLastAlterIdMaster""><SET>$AltMstId</SET></FIELD><FIELD NAME=""FldLastAlterIdTransaction""><SET>$AltVchId</SET></FIELD><FIELD NAME=""FldEOL""><SET>†</SET></FIELD><COLLECTION NAME=""MyCollection""><TYPE>Company</TYPE></COLLECTION></TDLMESSAGE></TDL></DESC></BODY></ENVELOPE>";
+
+        var response = await PostTallyXmlAsync(xml);
+        return ParseCompanyList(response);
+    }
+
+    public async Task<bool> TestConnectionAsync()
+    {
+        try
+        {
+            var companies = await GetCompanyListAsync();
+            return companies.Count > 0;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private List<CompanyInfo> ParseCompanyList(string csvData)
+    {
+        var companies = new List<CompanyInfo>();
+        
+        if (string.IsNullOrWhiteSpace(csvData))
+            return companies;
+
+        // Parse CSV format: "guid","name","booksFrom","lastVoucherDate","altMstId","altVchId","†",
+        var lines = csvData.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+        
+        foreach (var line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line) || !line.Contains(","))
+                continue;
+
+            // Simple CSV parsing - split by comma and remove quotes
+            var parts = line.Split(',');
+            
+            if (parts.Length >= 2)
+            {
+                var guid = parts[0].Trim('"', ' ');
+                var name = parts[1].Trim('"', ' ');
+                
+                if (!string.IsNullOrEmpty(guid) && !string.IsNullOrEmpty(name))
+                {
+                    companies.Add(new CompanyInfo 
+                    { 
+                        Guid = guid, 
+                        Name = name 
+                    });
+                }
+            }
+        }
+        
+        return companies;
+    }
+}
+
+```
+
+## File: Services/BackendUploadService.cs
+Language: c# | Tokens: 1163 | Size: 4655 bytes
+
+```c#
+using System.IO.Compression;
+using Microsoft.Extensions.Logging;
+
+namespace TallySyncService.Services;
+
+public class BackendUploadService
+{
+    private readonly string _backendUrl;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger _logger;
+
+    public BackendUploadService(string backendUrl, IHttpClientFactory httpClientFactory, ILogger logger)
+    {
+        _backendUrl = backendUrl;
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
+    }
+
+    /// <summary>
+    /// Zips all exported CSV files into a single in-memory archive and
+    /// uploads it to the backend as multipart/form-data in one request.
+    /// Returns the number of files successfully included in the zip (0 on failure).
+    /// </summary>
+    public async Task<int> UploadMultipleCsvFilesAsync(
+        List<string> csvFiles,
+        int organisationId)
+    {
+        if (csvFiles.Count == 0)
+        {
+            _logger.LogWarning("No CSV files to upload");
+            return 0;
+        }
+
+        try
+        {
+            // Build zip archive in memory
+            using var zipStream = new MemoryStream();
+            using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Create, leaveOpen: true))
+            {
+                foreach (var csvFile in csvFiles)
+                {
+                    var entryName = Path.GetFileName(csvFile); // e.g. "Ledger.csv"
+                    var entry = archive.CreateEntry(entryName, CompressionLevel.Optimal);
+
+                    await using var entryStream = entry.Open();
+                    await using var fileStream = File.OpenRead(csvFile);
+                    await fileStream.CopyToAsync(entryStream);
+
+                    _logger.LogInformation("  Packed: {FileName}", entryName);
+                }
+            }
+
+            zipStream.Position = 0;
+            var zipBytes = zipStream.ToArray();
+
+            _logger.LogInformation("Zip created: {FileCount} files, {SizeKb} KB",
+                csvFiles.Count, zipBytes.Length / 1024);
+
+            // Build multipart/form-data request
+            using var form = new MultipartFormDataContent();
+
+            // Attach zip file
+            var zipContent = new ByteArrayContent(zipBytes);
+            zipContent.Headers.ContentType =
+                new System.Net.Http.Headers.MediaTypeHeaderValue("application/zip");
+            form.Add(zipContent, "file", $"tally_export_{DateTime.UtcNow:yyyyMMddHHmmss}.zip");
+
+            // Attach metadata fields
+            form.Add(new StringContent(organisationId.ToString()), "organisationId");
+            form.Add(new StringContent(csvFiles.Count.ToString()), "fileCount");
+            form.Add(new StringContent(DateTime.UtcNow.ToString("o")), "exportedAt");
+
+            // Build request with auth headers
+            var request = new HttpRequestMessage(HttpMethod.Post, _backendUrl)
+            {
+                Content = form
+            };
+
+            var token = AuthService.LoadToken();
+            if (!string.IsNullOrEmpty(token))
+                request.Headers.Add("Authorization", token);
+
+            var orgId = AuthService.LoadOrganisationId();
+            if (orgId.HasValue)
+                request.Headers.Add("orgid", orgId.Value.ToString());
+
+            // Send
+            var httpClient = _httpClientFactory.CreateClient();
+            httpClient.Timeout = TimeSpan.FromMinutes(10);
+
+            var response = await httpClient.SendAsync(request);
+
+            // ALWAYS read response body
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            // Log everything cleanly
+            _logger.LogInformation(
+                "Response received: Status={StatusCode}, Reason={Reason}, Body={Body}",
+                (int)response.StatusCode,
+                response.ReasonPhrase,
+                responseBody
+            );
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation(
+                    "Upload successful: {FileCount} files in one zip ({SizeKb} KB)",
+                    csvFiles.Count,
+                    zipBytes.Length / 1024
+                );
+
+                return csvFiles.Count;
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Upload failed: Status={StatusCode}, Body={Body}",
+                    (int)response.StatusCode,
+                    responseBody
+                );
+
+                return 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating or uploading zip");
+            return 0;
+        }
+    }
+}
+
+```
+
+## File: Commands/LoginCommand.cs
+Language: c# | Tokens: 1163 | Size: 4655 bytes
+
+```c#
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using TallySyncService.Services;
+
+namespace TallySyncService.Commands;
+
+public class LoginCommand
+{
+    public static async Task ExecuteAsync(string backendUrl)
+    {
+        Console.WriteLine("╔═══════════════════════════════════════════════╗");
+        Console.WriteLine("║   Tally Sync Service - Login                  ║");
+        Console.WriteLine("╚═══════════════════════════════════════════════╝");
+        Console.WriteLine();
+
+        // Create a temporary service collection for dependency injection
+        var services = new ServiceCollection();
+        services.AddHttpClient();
+        services.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Warning));
+        var serviceProvider = services.BuildServiceProvider();
+
+        var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+        var logger = serviceProvider.GetRequiredService<ILogger<AuthService>>();
+        var authService = new AuthService(backendUrl, httpClientFactory, logger);
+
+        // Get email
+        Console.Write("Enter your email: ");
+        var email = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            Console.WriteLine("✗ Email is required");
+            return;
+        }
+
+        // Send OTP
+        Console.WriteLine("\nSending OTP to your email...");
+        var otpSent = await authService.SendOtpEmailAsync(email);
+
+        if (!otpSent)
+        {
+            Console.WriteLine("✗ Failed to send OTP. Please try again.");
+            return;
+        }
+
+        // Get OTP
+        Console.WriteLine();
+        Console.Write("Enter the OTP from your email: ");
+        var otp = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(otp))
+        {
+            Console.WriteLine("✗ OTP is required");
+            return;
+        }
+
+        // Validate OTP
+        Console.WriteLine("\nValidating OTP...");
+        var token = await authService.ValidateOtpAsync(email, otp);
+
+        if (token != null)
+        {
+            // Fetch user organizations
+            Console.WriteLine("\nFetching your organizations...");
+            var orgs = await authService.GetUserOrganisationsAsync(token);
+
+            if (orgs == null || orgs.Count == 0)
+            {
+                Console.WriteLine("✗ No organizations found for your account.");
+                return;
+            }
+
+            // Display organizations
+            Console.WriteLine($"\nFound {orgs.Count} organization(s):");
+            Console.WriteLine("─────────────────────────────────────────────────");
+            for (int i = 0; i < orgs.Count; i++)
+            {
+                Console.WriteLine($"  {i + 1}. {orgs[i].OrganisationCode} (ID: {orgs[i].OrganisationId})");
+            }
+            Console.WriteLine("─────────────────────────────────────────────────");
+
+            // Select organization
+            uint selectedOrgId;
+            if (orgs.Count == 1)
+            {
+                selectedOrgId = orgs[0].OrganisationId;
+                Console.WriteLine($"\nAutomatically selected: {orgs[0].OrganisationCode}");
+            }
+            else
+            {
+                Console.Write($"\nSelect organization (1-{orgs.Count}): ");
+                var selection = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(selection) || 
+                    !int.TryParse(selection, out var index) || 
+                    index < 1 || index > orgs.Count)
+                {
+                    Console.WriteLine("✗ Invalid selection");
+                    return;
+                }
+
+                selectedOrgId = orgs[index - 1].OrganisationId;
+                Console.WriteLine($"✓ Selected: {orgs[index - 1].OrganisationCode}");
+            }
+
+            // Save token and organization ID
+            AuthService.SaveToken(token, selectedOrgId);
+            Console.WriteLine($"\n✅ Login successful!");
+            Console.WriteLine($"   Token and organization saved.");
+            Console.WriteLine($"   You can now use the sync service.");
+        }
+        else
+        {
+            Console.WriteLine("\n✗ Login failed. Please try again.");
+        }
+    }
+}
+
+```
+
+## File: Services/TallyProcessService.cs
+Language: c# | Tokens: 985 | Size: 3941 bytes
+
+```c#
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+
+namespace TallySyncService.Services;
+
+public class TallyProcessService
+{
+    private readonly string _tallyPath;
+
+    public TallyProcessService(string tallyPath)
+    {
+        _tallyPath = tallyPath;
+    }
+
+    public bool IsTallyRunning()
+    {
+        try
+        {
+            // Check if any process named "tally" or "Tally.exe" is running
+            var processes = Process.GetProcesses();
+            return processes.Any(p => 
+                p.ProcessName.Equals("tally", StringComparison.OrdinalIgnoreCase) ||
+                p.ProcessName.Equals("Tally.exe", StringComparison.OrdinalIgnoreCase) ||
+                p.ProcessName.Contains("tally", StringComparison.OrdinalIgnoreCase));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"⚠️  Error checking if Tally is running: {ex.Message}");
+            return false;
+        }
+    }
+
+    public bool LaunchTally()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(_tallyPath))
+            {
+                Console.WriteLine("✗ Tally path not configured. Please run setup again.");
+                return false;
+            }
+
+            if (!File.Exists(_tallyPath))
+            {
+                Console.WriteLine($"✗ Tally executable not found at: {_tallyPath}");
+                return false;
+            }
+
+            Console.WriteLine($"🚀 Launching Tally from: {_tallyPath}");
+            
+            ProcessStartInfo psi;
+            
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // Native Windows execution
+                psi = new ProcessStartInfo
+                {
+                    FileName = _tallyPath,
+                    UseShellExecute = true,
+                    WorkingDirectory = Path.GetDirectoryName(_tallyPath)
+                };
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                // Linux with Wine
+                Console.WriteLine("🍷 Detected Linux platform, using Wine to launch Tally...");
+                
+                // Check if wine is available
+                if (!IsWineAvailable())
+                {
+                    Console.WriteLine("✗ Wine is not installed or not in PATH. Please install Wine to run Tally on Linux.");
+                    return false;
+                }
+                
+                psi = new ProcessStartInfo
+                {
+                    FileName = "wine",
+                    Arguments = $"\"{_tallyPath}\"",
+                    UseShellExecute = false,
+                    WorkingDirectory = Path.GetDirectoryName(_tallyPath),
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false
+                };
+            }
+            else
+            {
+                Console.WriteLine("✗ Unsupported platform. Tally can only run on Windows or Linux (with Wine).");
+                return false;
+            }
+
+            Process.Start(psi);
+            Console.WriteLine("✓ Tally launched successfully");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"✗ Failed to launch Tally: {ex.Message}");
+            return false;
+        }
+    }
+
+    private bool IsWineAvailable()
+    {
+        try
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = "which",
+                Arguments = "wine",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using var process = Process.Start(psi);
+            if (process == null) return false;
+            
+            process.WaitForExit();
+            return process.ExitCode == 0;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}
+
+```
+
+## File: Services/NotificationService.cs
+Language: c# | Tokens: 775 | Size: 3102 bytes
+
+```c#
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+
+namespace TallySyncService.Services;
+
+public class NotificationService
+{
+    public void SendNotification(string title, string message)
+    {
+        try
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                SendWindowsNotification(title, message);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                SendLinuxNotification(title, message);
+            }
+            else
+            {
+                Console.WriteLine($"📢 {title}: {message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"⚠️  Failed to send notification: {ex.Message}");
+            Console.WriteLine($"📢 {title}: {message}");
+        }
+    }
+
+    private void SendWindowsNotification(string title, string message)
+    {
+        // Use PowerShell to show a Windows toast notification
+        var escapedMessage = message.Replace("'", "''").Replace("\"", "`\"");
+        var escapedTitle = title.Replace("'", "''").Replace("\"", "`\"");
+        
+        var script = $@"
+            [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+            [Windows.UI.Notifications.ToastNotification, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+            [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
+
+            $template = @""
+            <toast>
+                <visual>
+                    <binding template='ToastGeneric'>
+                        <text>{escapedTitle}</text>
+                        <text>{escapedMessage}</text>
+                    </binding>
+                </visual>
+            </toast>
+            ""@
+
+            $xml = New-Object Windows.Data.Xml.Dom.XmlDocument
+            $xml.LoadXml($template)
+            $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
+            [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('TallySyncService').Show($toast)
+        ";
+
+        var psi = new ProcessStartInfo
+        {
+            FileName = "powershell.exe",
+            Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{script}\"",
+            CreateNoWindow = true,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+
+        using var process = Process.Start(psi);
+        process?.WaitForExit(5000); // Wait max 5 seconds
+    }
+
+    private void SendLinuxNotification(string title, string message)
+    {
+        // Use notify-send on Linux
+        var psi = new ProcessStartInfo
+        {
+            FileName = "notify-send",
+            Arguments = $"\"{title}\" \"{message}\"",
+            CreateNoWindow = true,
+            UseShellExecute = false
+        };
+
+        using var process = Process.Start(psi);
+        process?.WaitForExit(5000); // Wait max 5 seconds
+    }
+}
+
+```
+
+## File: setup-linux-autostart.sh
+Language: shell | Tokens: 743 | Size: 2975 bytes
+
+```shell
+#!/bin/bash
+
+# TallySyncService - Linux Auto-Start Setup Script
+# This script sets up the service to auto-start on user login using systemd user service
+
+set -e
+
+echo "╔═══════════════════════════════════════════════╗"
+echo "║   TallySyncService - Linux Auto-Start Setup  ║"
+echo "╚═══════════════════════════════════════════════╝"
+echo ""
+
+# Get the absolute path to the project directory
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SERVICE_FILE="tallysync-user.service"
+SERVICE_NAME="tallysync-user.service"
+
+# Create log directory
+LOG_DIR="$HOME/.local/share/tallysync"
+mkdir -p "$LOG_DIR"
+echo "✓ Created log directory: $LOG_DIR"
+
+# Create systemd user directory if it doesn't exist
+SYSTEMD_USER_DIR="$HOME/.config/systemd/user"
+mkdir -p "$SYSTEMD_USER_DIR"
+echo "✓ Created systemd user directory: $SYSTEMD_USER_DIR"
+
+# Create a temporary service file with correct paths
+TEMP_SERVICE="/tmp/tallysync-user.service"
+cat > "$TEMP_SERVICE" << EOF
+[Unit]
+Description=Tally Sync Service - Auto sync Tally data to backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=$PROJECT_DIR
+ExecStart=/usr/bin/dotnet run --project $PROJECT_DIR/TallySyncService.csproj
+Restart=on-failure
+RestartSec=30
+StandardOutput=append:$LOG_DIR/output.log
+StandardError=append:$LOG_DIR/error.log
+
+# Environment variables (if needed)
+Environment="DOTNET_CLI_TELEMETRY_OPTOUT=1"
+
+[Install]
+WantedBy=default.target
+EOF
+
+# Copy service file to systemd user directory
+cp "$TEMP_SERVICE" "$SYSTEMD_USER_DIR/$SERVICE_NAME"
+echo "✓ Installed service file to: $SYSTEMD_USER_DIR/$SERVICE_NAME"
+
+# Reload systemd user daemon
+systemctl --user daemon-reload
+echo "✓ Reloaded systemd user daemon"
+
+# Enable the service to start on login
+systemctl --user enable "$SERVICE_NAME"
+echo "✓ Enabled service to start on user login"
+
+# Start the service now
+systemctl --user start "$SERVICE_NAME"
+echo "✓ Started service"
+
+echo ""
+echo "═══════════════════════════════════════════════"
+echo "✅ Auto-start setup complete!"
+echo "═══════════════════════════════════════════════"
+echo ""
+echo "Service Commands:"
+echo "  • Check status:  systemctl --user status $SERVICE_NAME"
+echo "  • View logs:     journalctl --user -u $SERVICE_NAME -f"
+echo "  • Stop service:  systemctl --user stop $SERVICE_NAME"
+echo "  • Restart:       systemctl --user restart $SERVICE_NAME"
+echo "  • Disable:       systemctl --user disable $SERVICE_NAME"
+echo ""
+echo "Log files:"
+echo "  • Output: $LOG_DIR/output.log"
+echo "  • Errors: $LOG_DIR/error.log"
+echo ""
+
+```
+
+## File: Services/YamlConfigLoader.cs
+Language: c# | Tokens: 645 | Size: 2580 bytes
+
+```c#
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
+using TallySyncService.Models;
+
+namespace TallySyncService.Services;
+
+public class YamlConfigLoader
+{
+    private YamlConfig? _config;
+    private readonly string _yamlPath;
+
+    public YamlConfigLoader(string yamlPath)
+    {
+        _yamlPath = yamlPath;
+    }
+
+    public async Task LoadAsync()
+    {
+        if (!File.Exists(_yamlPath))
+        {
+            throw new FileNotFoundException($"YAML configuration file not found: {_yamlPath}");
+        }
+
+        var yamlContent = await File.ReadAllTextAsync(_yamlPath);
+        
+        var deserializer = new DeserializerBuilder()
+            .WithNamingConvention(UnderscoredNamingConvention.Instance)
+            .Build();
+
+        _config = deserializer.Deserialize<YamlConfig>(yamlContent);
+    }
+
+    public List<TableDefinition> GetMasterTables()
+    {
+        if (_config == null)
+            throw new InvalidOperationException("Configuration not loaded. Call LoadAsync() first.");
+        
+        return _config.Master;
+    }
+
+    public List<TableDefinition> GetTransactionTables()
+    {
+        if (_config == null)
+            throw new InvalidOperationException("Configuration not loaded. Call LoadAsync() first.");
+        
+        return _config.Transaction;
+    }
+
+    public List<TableDefinition> GetAllTables()
+    {
+        var all = new List<TableDefinition>();
+        all.AddRange(GetMasterTables());
+        all.AddRange(GetTransactionTables());
+        return all;
+    }
+
+    public TableDefinition? GetTableByName(string tableName)
+    {
+        return GetAllTables().FirstOrDefault(t => 
+            t.Name.Equals(tableName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public List<TableDefinition> GetTablesByNames(List<string> tableNames)
+    {
+        if (_config == null)
+            throw new InvalidOperationException("Configuration not loaded. Call LoadAsync() first.");
+        
+        var allTables = GetAllTables();
+        return allTables.Where(t => 
+            tableNames.Any(name => name.Equals(t.Name, StringComparison.OrdinalIgnoreCase))
+        ).ToList();
+    }
+
+    public List<string> GetAllTableNames()
+    {
+        return GetAllTables().Select(t => t.Name).ToList();
+    }
+
+    public Dictionary<string, List<string>> GetTableNamesByCategory()
+    {
+        return new Dictionary<string, List<string>>
+        {
+            { "Master", GetMasterTables().Select(t => t.Name).ToList() },
+            { "Transaction", GetTransactionTables().Select(t => t.Name).ToList() }
+        };
+    }
+}
+
+```
+
+## File: Program.cs
+Language: c# | Tokens: 405 | Size: 1621 bytes
+
+```c#
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Serilog;
+using TallySyncService;
+using TallySyncService.Commands;
+using TallySyncService.Services;
+
+// Check for command line arguments
+if (args.Length > 0)
+{
+    switch (args[0])
+    {
+        case "--setup":
+            await SetupCommand.ExecuteAsync();
+            return;
+        
+        case "--login":
+            var backendUrl = args.Length > 1 ? args[1] : "http://localhost:8081";
+            await LoginCommand.ExecuteAsync(backendUrl);
+            return;
+    }
+}
+
+// Run background service
+var host = Host.CreateDefaultBuilder(args)
+    .UseSerilog((context, services, configuration) => configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.FromLogContext()
+        .WriteTo.Console(
+            outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+        .WriteTo.File(
+            path: "logs/tallysync-.log",
+            rollingInterval: RollingInterval.Day,
+            retainedFileCountLimit: 7,
+            shared: true))
+    .ConfigureServices((context, services) =>
+    {
+        services.AddHttpClient();
+        services.AddHostedService<TallySyncWorker>();
+        
+        // Register services for dependency injection
+        services.AddSingleton<YamlConfigLoader>(sp => 
+        {
+            var config = context.Configuration;
+            var definitionFile = config["Tally:DefinitionFile"] ?? "tally-export-config.yaml";
+            return new YamlConfigLoader(definitionFile);
+        });
+    })
+    .Build();
+
+await host.RunAsync();
+```
+
+## File: obj/Release/net8.0/TallySyncService.AssemblyInfo.cs
+Language: c# | Tokens: 287 | Size: 1148 bytes
+
+```c#
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("dotnet-TallySyncService-1c741c29-70b6-4257-8d23-d2796e85af79")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("TallySyncService")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cde8ace7f61979c6de51891ef4254b858fbbf291")]
+[assembly: System.Reflection.AssemblyProductAttribute("TallySyncService")]
+[assembly: System.Reflection.AssemblyTitleAttribute("TallySyncService")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+```
+
+## File: obj/Release/net8.0/win-x64/TallySyncService.AssemblyInfo.cs
+Language: c# | Tokens: 287 | Size: 1148 bytes
+
+```c#
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("dotnet-TallySyncService-1c741c29-70b6-4257-8d23-d2796e85af79")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("TallySyncService")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b13ceb21239ace85980aa9eefdf218527deabb8")]
+[assembly: System.Reflection.AssemblyProductAttribute("TallySyncService")]
+[assembly: System.Reflection.AssemblyTitleAttribute("TallySyncService")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+// Generated by the MSBuild WriteCodeFragment class.
+
+
+```
+
+## File: Models/AuthModels.cs
+Language: c# | Tokens: 235 | Size: 941 bytes
+
+```c#
+namespace TallySyncService.Models;
+
+public class AuthConfig
+{
+    public string BackendUrl { get; set; } = "http://localhost:8081";
+    public string? JwtToken { get; set; }
+    public uint? OrganisationId { get; set; }
+}
+
+public class LoginRequest
+{
+    public string Email { get; set; } = string.Empty;
+}
+
+public class ValidateOtpRequest
+{
+    public string Email { get; set; } = string.Empty;
+    public string Code { get; set; } = string.Empty;
+}
+
+public class LoginResponse
+{
+    public string Token { get; set; } = string.Empty;
+}
+
+public class UserOrganisation
+{
+    [System.Text.Json.Serialization.JsonPropertyName("user_id")]
+    public uint UserId { get; set; }
+    
+    [System.Text.Json.Serialization.JsonPropertyName("organisation_id")]
+    public uint OrganisationId { get; set; }
+    
+    [System.Text.Json.Serialization.JsonPropertyName("OrganisationCode")]
+    public string OrganisationCode { get; set; } = string.Empty;
+}
+
+```
+
+## File: Models/TableDefinition.cs
+Language: c# | Tokens: 165 | Size: 660 bytes
+
+```c#
+namespace TallySyncService.Models;
+
+public class TableDefinition
+{
+    public string Name { get; set; } = string.Empty;
+    public string Collection { get; set; } = string.Empty;
+    public string Nature { get; set; } = string.Empty;
+    public List<FieldDefinition> Fields { get; set; } = new();
+    public List<string>? Filters { get; set; }
+    public List<string>? Fetch { get; set; }
+    public List<CascadeOperation>? CascadeDelete { get; set; }
+    public List<CascadeOperation>? CascadeUpdate { get; set; }
+}
+
+public class CascadeOperation
+{
+    public string Table { get; set; } = string.Empty;
+    public string Field { get; set; } = string.Empty;
+}
+
+```
+
+## File: obj/Debug/net8.0/TallySyncService.GlobalUsings.g.cs
+Language: c# | Tokens: 127 | Size: 509 bytes
+
+```c#
+// <auto-generated/>
+global using global::Microsoft.Extensions.Configuration;
+global using global::Microsoft.Extensions.DependencyInjection;
+global using global::Microsoft.Extensions.Hosting;
+global using global::Microsoft.Extensions.Logging;
+global using global::System;
+global using global::System.Collections.Generic;
+global using global::System.IO;
+global using global::System.Linq;
+global using global::System.Net.Http;
+global using global::System.Threading;
+global using global::System.Threading.Tasks;
+
+```
+
+## File: obj/Release/net8.0/TallySyncService.GlobalUsings.g.cs
+Language: c# | Tokens: 127 | Size: 509 bytes
+
+```c#
+// <auto-generated/>
+global using global::Microsoft.Extensions.Configuration;
+global using global::Microsoft.Extensions.DependencyInjection;
+global using global::Microsoft.Extensions.Hosting;
+global using global::Microsoft.Extensions.Logging;
+global using global::System;
+global using global::System.Collections.Generic;
+global using global::System.IO;
+global using global::System.Linq;
+global using global::System.Net.Http;
+global using global::System.Threading;
+global using global::System.Threading.Tasks;
+
+```
+
+## File: obj/Release/net8.0/win-x64/TallySyncService.GlobalUsings.g.cs
+Language: c# | Tokens: 127 | Size: 509 bytes
+
+```c#
+// <auto-generated/>
+global using global::Microsoft.Extensions.Configuration;
+global using global::Microsoft.Extensions.DependencyInjection;
+global using global::Microsoft.Extensions.Hosting;
+global using global::Microsoft.Extensions.Logging;
+global using global::System;
+global using global::System.Collections.Generic;
+global using global::System.IO;
+global using global::System.Linq;
+global using global::System.Net.Http;
+global using global::System.Threading;
+global using global::System.Threading.Tasks;
+
+```
+
+## File: Models/TallyConfig.cs
+Language: c# | Tokens: 113 | Size: 452 bytes
+
+```c#
+namespace TallySyncService.Models;
+
+public class TallyConfig
+{
+    public string Server { get; set; } = "localhost";
+    public int Port { get; set; } = 9000;
+    public string Company { get; set; } = string.Empty;
+    public string TallyPath { get; set; } = string.Empty;
+    public string FromDate { get; set; } = "auto";
+    public string ToDate { get; set; } = "auto";
+    public string DefinitionFile { get; set; } = "tally-export-config.yaml";
+}
+
+```
+
+## File: Models/CompanyInfo.cs
+Language: c# | Tokens: 98 | Size: 392 bytes
+
+```c#
+namespace TallySyncService.Models;
+
+public class CompanyInfo
+{
+    public string Guid { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string BooksFrom { get; set; } = string.Empty;
+    public string LastVoucherDate { get; set; } = string.Empty;
+    public int LastAlterIdMaster { get; set; }
+    public int LastAlterIdTransaction { get; set; }
+}
+
+```
+
+## File: Models/UploadRequest.cs
+Language: c# | Tokens: 87 | Size: 350 bytes
+
+```c#
+namespace TallySyncService.Models;
+
+public class UploadRequest
+{
+    public string TableName { get; set; } = string.Empty;
+    public int OrganisationId { get; set; }
+    public string CsvData { get; set; } = string.Empty;
+    public int RecordCount { get; set; }
+    public long FileSize { get; set; }
+    public DateTime ExportedAt { get; set; }
+}
+
+```
+
+## File: Models/FieldDefinition.cs
+Language: c# | Tokens: 57 | Size: 229 bytes
+
+```c#
+namespace TallySyncService.Models;
+
+public class FieldDefinition
+{
+    public string Name { get; set; } = string.Empty;
+    public string Field { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+}
+
+```
+
+## File: obj/Debug/net8.0/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+Language: c# | Tokens: 48 | Size: 194 bytes
+
+```c#
+// <autogenerated />
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v8.0", FrameworkDisplayName = ".NET 8.0")]
+
+```
+
+## File: obj/Release/net8.0/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+Language: c# | Tokens: 48 | Size: 194 bytes
+
+```c#
+// <autogenerated />
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v8.0", FrameworkDisplayName = ".NET 8.0")]
+
+```
+
+## File: Models/YamlConfig.cs
+Language: c# | Tokens: 48 | Size: 195 bytes
+
+```c#
+namespace TallySyncService.Models;
+
+public class YamlConfig
+{
+    public List<TableDefinition> Master { get; set; } = new();
+    public List<TableDefinition> Transaction { get; set; } = new();
+}
+
+```
+
+## File: obj/Release/net8.0/win-x64/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+Language: c# | Tokens: 48 | Size: 194 bytes
+
+```c#
+// <autogenerated />
+using System;
+using System.Reflection;
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v8.0", FrameworkDisplayName = ".NET 8.0")]
+
+```
+
+
+---
+
+**Summary:**
+- Files Included: 31 / 31
+- Total Tokens: 20897 / 10000000000

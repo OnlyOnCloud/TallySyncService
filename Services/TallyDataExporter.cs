@@ -23,7 +23,7 @@ public class TallyDataExporter
     public async Task<string> ExportTableToCsvAsync(TableDefinition table, string outputDirectory)
     {
         Console.WriteLine($"Exporting table: {table.Name}...");
-        
+
         // Prepare substitutions
         var substitutions = new Dictionary<string, string>
         {
@@ -54,7 +54,7 @@ public class TallyDataExporter
     }
 
     public async Task<List<string>> ExportMultipleTablesToCsvAsync(
-        List<TableDefinition> tables, 
+        List<TableDefinition> tables,
         string outputDirectory)
     {
         var exportedFiles = new List<string>();
@@ -132,7 +132,7 @@ public class TallyDataExporter
     }
 
     private async Task ConvertAndWriteCsvAsync(
-        string tabDelimitedData, 
+        string tabDelimitedData,
         string outputPath,
         List<FieldDefinition> fields)
     {
@@ -148,24 +148,34 @@ public class TallyDataExporter
 
             for (int i = 0; i < values.Length; i++)
             {
-                var value = values[i];
-                var fieldType = i < fields.Count ? fields[i].Type : "text";
+                var value = values[i] ?? "";
 
-                // Replace special null character
+                // 🔹 Clean invalid characters from Tally
                 value = value.Replace("ñ", "");
 
-                // Escape double quotes
+                // 🔹 FIX: Remove unbalanced quotes (VERY IMPORTANT)
+                int quoteCount = value.Count(c => c == '"');
+                if (quoteCount % 2 != 0)
+                {
+                    value = value.Replace("\"", "");
+                }
+
+                // 🔹 Escape quotes properly
                 value = value.Replace("\"", "\"\"");
 
-                // Quote text and date fields
-                if (fieldType == "text" || fieldType == "date")
+                // 🔹 Wrap ONLY if needed (RFC CSV rule)
+                bool mustQuote =
+                    value.Contains(",") ||
+                    value.Contains("\"") ||
+                    value.Contains("\n") ||
+                    value.Contains("\r");
+
+                if (mustQuote)
                 {
-                    csvValues.Add($"\"{value}\"");
+                    value = $"\"{value}\"";
                 }
-                else
-                {
-                    csvValues.Add(value);
-                }
+
+                csvValues.Add(value);
             }
 
             csvLines.Add(string.Join(",", csvValues));
