@@ -61,7 +61,7 @@ public class SetupCommand
         if (string.IsNullOrWhiteSpace(exportPath)) exportPath = "./exports";
 
         // Backend Configuration
-        var backendBaseUrl = "http://localhost:8081";
+        var backendBaseUrl = "https://dhub-backend-dev.onlyoncloud.com";
 
         // Create TallyConfig for use in custom table selection
         var tallyConfig = new TallyConfig

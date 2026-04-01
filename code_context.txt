@@ -377,7 +377,7 @@ public class SetupCommand
         if (string.IsNullOrWhiteSpace(exportPath)) exportPath = "./exports";
 
         // Backend Configuration
-        var backendBaseUrl = "http://localhost:8081";
+        var backendBaseUrl = "https://dhub-backend-dev.onlyoncloud.com";
 
         // Create TallyConfig for use in custom table selection
         var tallyConfig = new TallyConfig
@@ -663,7 +663,7 @@ public class TallySyncWorker : BackgroundService
         };
         
         _intervalMinutes = int.Parse(_configuration["Sync:IntervalMinutes"] ?? "15");
-        _backendUrl = _configuration["Backend:Url"] ?? "http://localhost:8081/api/data";
+        _backendUrl = _configuration["Backend:Url"] ?? "https://dhub-backend-dev.onlyoncloud.com/api/data";
         _tableMode = _configuration["Tables:Mode"] ?? "all";
         _customTables = _configuration.GetSection("Tables:CustomTables").Get<List<string>>() ?? new List<string>();
     }
@@ -2279,7 +2279,7 @@ if (args.Length > 0)
             return;
         
         case "--login":
-            var backendUrl = args.Length > 1 ? args[1] : "http://localhost:8081";
+            var backendUrl = args.Length > 1 ? args[1] : "https://dhub-backend-dev.onlyoncloud.com";
             await LoginCommand.ExecuteAsync(backendUrl);
             return;
     }
@@ -2383,7 +2383,7 @@ namespace TallySyncService.Models;
 
 public class AuthConfig
 {
-    public string BackendUrl { get; set; } = "http://localhost:8081";
+    public string BackendUrl { get; set; } = "https://dhub-backend-dev.onlyoncloud.com";
     public string? JwtToken { get; set; }
     public uint? OrganisationId { get; set; }
 }
