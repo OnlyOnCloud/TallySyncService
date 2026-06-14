@@ -40,7 +40,7 @@ public class TallySyncWorker : BackgroundService
         };
         
         _intervalMinutes = int.Parse(_configuration["Sync:IntervalMinutes"] ?? "15");
-        _backendUrl = _configuration["Backend:Url"] ?? "https://dhub-backend-dev.onlyoncloud.com/api/data";
+        _backendUrl = (_configuration["Backend:Url"] ?? "https://dhub-backend.onlyoncloud.com/api/data").Trim();
         _tableMode = _configuration["Tables:Mode"] ?? "all";
         _customTables = _configuration.GetSection("Tables:CustomTables").Get<List<string>>() ?? new List<string>();
     }
@@ -141,11 +141,24 @@ public class TallySyncWorker : BackgroundService
             var companies = await tallyXmlService.GetCompanyListAsync();
             if (companies.Count == 0)
             {
-                _logger.LogWarning("No companies found");
+                _logger.LogWarning("No companies found in Tally. Please open a company in Tally and try again.");
                 return;
             }
 
-            var company = companies.FirstOrDefault(c => c.Name == _config.Company) ?? companies[0];
+            // Use the currently open company in Tally directly.
+            // In educational mode only one company can be open at a time,
+            // so always use whichever is active — don't override with a saved name.
+            var company = companies[0];
+
+            if (!string.IsNullOrWhiteSpace(_config.Company) &&
+                !company.Name.Equals(_config.Company, StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning(
+                    "Configured company '{ConfiguredCompany}' does not match the open Tally company '{OpenCompany}'. " +
+                    "Using the currently open company. Please open '{ConfiguredCompany}' in Tally if that is intended.",
+                    _config.Company, company.Name, _config.Company);
+            }
+
             _config.Company = company.Name;
             _logger.LogInformation("Using company: {CompanyName}", company.Name);
 

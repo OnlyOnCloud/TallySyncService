@@ -24,6 +24,7 @@ public class XmlGenerator
         if (substitutions.ContainsKey("targetCompany") && !string.IsNullOrEmpty(substitutions["targetCompany"]))
         {
             xml.Append($"<SVCURRENTCOMPANY>{{targetCompany}}</SVCURRENTCOMPANY>");
+            xml.Append($"<SVCOMPANY>{{targetCompany}}</SVCOMPANY>");
         }
         
         xml.Append("</STATICVARIABLES><TDL><TDLMESSAGE>");

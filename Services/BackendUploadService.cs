@@ -11,7 +11,7 @@ public class BackendUploadService
 
     public BackendUploadService(string backendUrl, IHttpClientFactory httpClientFactory, ILogger logger)
     {
-        _backendUrl = backendUrl;
+        _backendUrl = backendUrl.Trim();
         _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
