@@ -17,17 +17,20 @@ public class TallySyncWorker : BackgroundService
     private readonly string _backendUrl;
     private readonly string _tableMode;
     private readonly List<string> _customTables;
+    private readonly bool _appendOnly;
 
     public TallySyncWorker(
         ILogger<TallySyncWorker> logger,
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
-        YamlConfigLoader yamlLoader)
+        YamlConfigLoader yamlLoader,
+        SyncOptions syncOptions)
     {
         _logger = logger;
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
         _yamlLoader = yamlLoader;
+        _appendOnly = syncOptions.AppendOnly;
         
         // Load configuration from appsettings.json
         _config = new TallyConfig
@@ -83,7 +86,7 @@ public class TallySyncWorker : BackgroundService
             var xmlGenerator = new XmlGenerator();
             var exporter = new TallyDataExporter(tallyXmlService, xmlGenerator, _config);
             await _yamlLoader.LoadAsync();
-            var uploadService = new BackendUploadService(_backendUrl, _httpClientFactory, _logger);
+            var uploadService = new BackendUploadService(_backendUrl, _httpClientFactory, _logger, _appendOnly);
 
             // Test Tally connection
             _logger.LogInformation("Testing connection to Tally...");

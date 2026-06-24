@@ -8,12 +8,14 @@ public class BackendUploadService
     private readonly string _backendUrl;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger _logger;
+    private readonly bool _appendOnly;
 
-    public BackendUploadService(string backendUrl, IHttpClientFactory httpClientFactory, ILogger logger)
+    public BackendUploadService(string backendUrl, IHttpClientFactory httpClientFactory, ILogger logger, bool appendOnly = false)
     {
         _backendUrl = backendUrl.Trim();
         _httpClientFactory = httpClientFactory;
         _logger = logger;
+        _appendOnly = appendOnly;
     }
 
     /// <summary>
@@ -83,6 +85,11 @@ public class BackendUploadService
             var orgId = AuthService.LoadOrganisationId();
             if (orgId.HasValue)
                 request.Headers.Add("orgid", orgId.Value.ToString());
+
+            if (_appendOnly)
+            {
+                request.Headers.Add("X-Append-Only", "true");
+            }
 
             // Send
             var httpClient = _httpClientFactory.CreateClient();

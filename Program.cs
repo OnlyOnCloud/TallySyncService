@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using TallySyncService;
 using TallySyncService.Commands;
+using TallySyncService.Models;
 using TallySyncService.Services;
 
 // Check for command line arguments
@@ -37,6 +38,9 @@ var host = Host.CreateDefaultBuilder(args)
     {
         services.AddHttpClient();
         services.AddHostedService<TallySyncWorker>();
+        
+        var appendOnly = Array.Exists(args, arg => arg.Equals("--append-only", StringComparison.OrdinalIgnoreCase));
+        services.AddSingleton(new SyncOptions { AppendOnly = appendOnly });
         
         // Register services for dependency injection
         services.AddSingleton<YamlConfigLoader>(sp => 
