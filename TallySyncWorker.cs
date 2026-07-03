@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using System.Runtime.InteropServices;
 using TallySyncService.Models;
 using TallySyncService.Services;
+
 
 namespace TallySyncService;
 
@@ -33,12 +35,18 @@ public class TallySyncWorker : BackgroundService
         _appendOnly = syncOptions.AppendOnly;
         
         // Load configuration from appsettings.json
+        var tallyPath = _configuration["Tally:TallyPath"] ?? "";
+        if (!IsPathValidForPlatform(tallyPath))
+        {
+            tallyPath = GetDefaultTallyPathForPlatform();
+        }
+
         _config = new TallyConfig
         {
             Server = _configuration["Tally:Server"] ?? "localhost",
             Port = int.Parse(_configuration["Tally:Port"] ?? "9000"),
             Company = _configuration["Tally:Company"] ?? "",
-            TallyPath = _configuration["Tally:TallyPath"] ?? "",
+            TallyPath = tallyPath,
             DefinitionFile = _configuration["Tally:DefinitionFile"] ?? "tally-export-config.yaml"
         };
         
@@ -227,5 +235,38 @@ public class TallySyncWorker : BackgroundService
                 : yamlLoader.GetAllTables(),
             _ => yamlLoader.GetAllTables()
         };
+    }
+
+    private static bool IsPathValidForPlatform(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return false;
+        
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            if (path.StartsWith("/") || path.StartsWith("~"))
+                return false;
+            return true;
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            if (path.Contains(":\\") || path.Contains("\\"))
+                return false;
+            return true;
+        }
+        return true;
+    }
+
+    private static string GetDefaultTallyPathForPlatform()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return @"C:\Program Files (x86)\Tally.ERP 9\tally.exe";
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            return $"{home}/.wine/drive_c/Program Files/TallyPrime (3)/tally.exe";
+        }
+        return "";
     }
 }
