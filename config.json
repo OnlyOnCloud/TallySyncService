@@ -10,7 +10,7 @@
     "exportPath": "./exports"
   },
   "backend": {
-    "url": "https://dhub-backend.onlyoncloud.com/api/data"
+    "url": "https://dhub-backend-dev.onlyoncloud.com/api/data"
   },
   "tables": {
     "mode": "all",

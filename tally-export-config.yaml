@@ -12,6 +12,9 @@ master:
         - name: parent
           field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $Parent
           type: text
+        - name: _parent
+          field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $ParentGuid
+          type: text
         - name: primary_group
           field: _PrimaryGroup
           type: text
@@ -42,6 +45,9 @@ master:
           type: text
         - name: parent
           field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $Parent
+          type: text
+        - name: _parent
+          field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $ParentGuid
           type: text
         - name: alias
           field: OnlyAlias
@@ -137,6 +143,9 @@ master:
         - name: parent
           field: Parent
           type: text
+        - name: _parent
+          field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $ParentGuid
+          type: text
         - name: numbering_method
           field: NumberingMethod
           type: text
@@ -184,6 +193,9 @@ master:
         - name: parent
           field: Parent
           type: text
+        - name: _parent
+          field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $ParentGuid
+          type: text
         - name: address
           field: if $$IsEmpty:$Address then "" else $$FullList:Address:$Address
           type: text
@@ -200,6 +212,9 @@ master:
         - name: parent
           field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $Parent
           type: text
+        - name: _parent
+          field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $ParentGuid
+          type: text
     - name: mst_stock_group
       collection: StockGroup
       nature: Primary
@@ -212,6 +227,9 @@ master:
           type: text
         - name: parent
           field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $Parent
+          type: text
+        - name: _parent
+          field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $ParentGuid
           type: text
     - name: mst_stock_item
       collection: StockItem
@@ -227,6 +245,9 @@ master:
           type: text
         - name: parent
           field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $Parent
+          type: text
+        - name: _parent
+          field: ""
           type: text
         - name: category
           field: if $$IsEqual:$Category:$$SysName:NotApplicable then "" else $Category
@@ -246,8 +267,14 @@ master:
         - name: uom
           field: if $$IsEqual:$BaseUnits:$$SysName:NotApplicable then "" else $BaseUnits
           type: text
+        - name: _uom
+          field: ""
+          type: text
         - name: alternate_uom
           field: if $$IsEqual:$AdditionalUnits:$$SysName:NotApplicable then "" else $AdditionalUnits
+          type: text
+        - name: _alternate_uom
+          field: ""
           type: text
         - name: conversion
           field: Conversion
@@ -317,6 +344,9 @@ master:
         - name: parent
           field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $Parent
           type: text
+        - name: _parent
+          field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $ParentGuid
+          type: text
         - name: category
           field: Category
           type: text
@@ -333,8 +363,14 @@ master:
         - name: parent
           field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $Parent
           type: text
+        - name: _parent
+          field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $ParentGuid
+          type: text
         - name: uom
           field: if $$IsNotApplicable:$BaseUnits then "" else $BaseUnits
+          type: text
+        - name: _uom
+          field: ""
           type: text
         - name: attendance_type
           field: AttendanceProductionType
@@ -356,6 +392,15 @@ master:
           type: text
         - name: parent
           field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $Parent
+          type: text
+        - name: _parent
+          field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $ParentGuid
+          type: text
+        - name: category
+          field: if $$IsEqual:$Category:$$SysName:NotApplicable then "" else $Category
+          type: text
+        - name: _category
+          field: ""
           type: text
         - name: id_number
           field: MailingName
@@ -435,6 +480,9 @@ master:
         - name: parent
           field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $Parent
           type: text
+        - name: _parent
+          field: if $$IsEqual:$Parent:$$SysName:Primary then "" else $ParentGuid
+          type: text
         - name: payslip_name
           field: PaySlipName
           type: text
@@ -462,6 +510,9 @@ master:
       fields:
         - name: item
           field: Name
+          type: text
+        - name: _item
+          field: Guid
           type: text
         - name: applicable_from
           field: Applicablefrom
@@ -502,6 +553,9 @@ master:
         - name: item
           field: ..Name
           type: text
+        - name: _item
+          field: ..Guid
+          type: text
         - name: opening_balance
           field: $$StringFindAndReplace:($$Number:$$String:$OpeningBalance):"(-)":"-"
           type: amount
@@ -514,6 +568,9 @@ master:
         - name: godown
           field: GodownName
           type: text
+        - name: _godown
+          field: ""
+          type: text
         - name: manufactured_on
           field: MfdOn
           type: date
@@ -525,6 +582,9 @@ master:
       fields:
         - name: ledger
           field: ..Name
+          type: text
+        - name: _ledger
+          field: ..Guid
           type: text
         - name: opening_balance
           field: OpeningBalance
@@ -552,6 +612,9 @@ master:
         - name: ledger
           field: Name
           type: text
+        - name: _ledger
+          field: Guid
+          type: text
         - name: stock_date
           field: Date
           type: date
@@ -569,6 +632,9 @@ master:
         - name: item
           field: Name
           type: text
+        - name: _item
+          field: Guid
+          type: text
         - name: date
           field: Date
           type: date
@@ -585,6 +651,9 @@ master:
       fields:
         - name: item
           field: Name
+          type: text
+        - name: _item
+          field: Guid
           type: text
         - name: date
           field: Date
@@ -611,6 +680,9 @@ transaction:
         - name: voucher_type
           field: VoucherTypeName
           type: text
+        - name: _voucher_type
+          field: ""
+          type: text
         - name: voucher_number
           field: VoucherNumber
           type: text
@@ -625,6 +697,9 @@ transaction:
           type: text
         - name: party_name
           field: PartyLedgerName
+          type: text
+        - name: _party_name
+          field: ""
           type: text
         - name: place_of_supply
           field: PlaceOfSupply
@@ -657,6 +732,9 @@ transaction:
         - name: ledger
           field: LedgerName
           type: text
+        - name: _ledger
+          field: LedgerGuid
+          type: text
         - name: amount
           field: Amount
           type: amount
@@ -682,6 +760,9 @@ transaction:
         - name: item
           field: StockItemName
           type: text
+        - name: _item
+          field: StockItemGuid
+          type: text
         - name: quantity
           field: ActualQty
           type: quantity
@@ -699,6 +780,9 @@ transaction:
           type: number
         - name: godown
           field: GodownName
+          type: text
+        - name: _godown
+          field: ""
           type: text
         - name: tracking_number
           field: if ($$IsEmpty:$TrackingNumber or $$IsNotApplicable:$TrackingNumber) then "" else $TrackingNumber
@@ -725,8 +809,14 @@ transaction:
         - name: ledger
           field: LedgerName
           type: text
+        - name: _ledger
+          field: LedgerGuid
+          type: text
         - name: costcentre
           field: Name
+          type: text
+        - name: _costcentre
+          field: ""
           type: text
         - name: amount
           field: Amount
@@ -747,11 +837,20 @@ transaction:
         - name: ledger
           field: LedgerName
           type: text
+        - name: _ledger
+          field: LedgerGuid
+          type: text
         - name: costcategory
           field: Category
           type: text
+        - name: _costcategory
+          field: ""
+          type: text
         - name: costcentre
           field: Name
+          type: text
+        - name: _costcentre
+          field: ""
           type: text
         - name: amount
           field: Amount
@@ -772,14 +871,26 @@ transaction:
         - name: ledger
           field: LedgerName
           type: text
+        - name: _ledger
+          field: LedgerGuid
+          type: text
         - name: item
           field: StockItemName
+          type: text
+        - name: _item
+          field: ""
           type: text
         - name: costcategory
           field: Category
           type: text
+        - name: _costcategory
+          field: ""
+          type: text
         - name: costcentre
           field: Name
+          type: text
+        - name: _costcentre
+          field: ""
           type: text
         - name: amount
           field: Amount
@@ -799,6 +910,9 @@ transaction:
           type: text
         - name: ledger
           field: LedgerName
+          type: text
+        - name: _ledger
+          field: LedgerGuid
           type: text
         - name: name
           field: Name
@@ -827,6 +941,9 @@ transaction:
           type: text
         - name: ledger
           field: ..LedgerName
+          type: text
+        - name: _ledger
+          field: ..LedgerGuid
           type: text
         - name: transaction_type
           field: TransactionType
@@ -862,6 +979,9 @@ transaction:
         - name: item
           field: StockItemName
           type: text
+        - name: _item
+          field: ""
+          type: text
         - name: name
           field: BatchName
           type: text
@@ -874,8 +994,14 @@ transaction:
         - name: godown
           field: GodownName
           type: text
+        - name: _godown
+          field: ""
+          type: text
         - name: destination_godown
           field: DestinationGodownName
+          type: text
+        - name: _destination_godown
+          field: ""
           type: text
         - name: tracking_number
           field: if ($$IsEmpty:$TrackingNumber or $$IsNotApplicable:$TrackingNumber) then "" else $TrackingNumber
@@ -895,6 +1021,9 @@ transaction:
           type: text
         - name: ledger
           field: LedgerName
+          type: text
+        - name: _ledger
+          field: LedgerGuid
           type: text
         - name: amount
           field: Amount
@@ -918,8 +1047,14 @@ transaction:
         - name: category
           field: Category
           type: text
+        - name: _category
+          field: ""
+          type: text
         - name: employee_name
           field: EmployeeName
+          type: text
+        - name: _employee_name
+          field: ""
           type: text
         - name: amount
           field: Amount
@@ -943,14 +1078,23 @@ transaction:
         - name: category
           field: Category
           type: text
+        - name: _category
+          field: ""
+          type: text
         - name: employee_name
           field: EmployeeName
+          type: text
+        - name: _employee_name
+          field: ""
           type: text
         - name: employee_sort_order
           field: EmployeeSortOrder
           type: number
         - name: payhead_name
           field: PayheadName
+          type: text
+        - name: _payhead_name
+          field: ""
           type: text
         - name: payhead_sort_order
           field: PayheadSortOrder
@@ -974,8 +1118,14 @@ transaction:
         - name: employee_name
           field: Name
           type: text
+        - name: _employee_name
+          field: ""
+          type: text
         - name: attendancetype_name
           field: AttendanceType
+          type: text
+        - name: _attendancetype_name
+          field: ""
           type: text
         - name: time_value
           field: AttdTypeTimeValue

@@ -132,6 +132,11 @@ public class XmlGenerator
         var fieldName = field.Field;
         var fieldType = field.Type;
 
+        // Stub fields declared with field: "" in YAML — emit TDL empty-string literal
+        // so Tally receives <SET>""</SET> instead of an empty <SET></SET> it can't parse.
+        if (string.IsNullOrEmpty(fieldName))
+            return "\"\"";
+
         // Check if it's a simple field reference or complex expression
         if (Regex.IsMatch(fieldName, @"^(\.\.)?[a-zA-Z0-9_]+$"))
         {

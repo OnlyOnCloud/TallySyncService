@@ -51,7 +51,7 @@ public class TallySyncWorker : BackgroundService
         };
         
         _intervalMinutes = int.Parse(_configuration["Sync:IntervalMinutes"] ?? "15");
-        _backendUrl = (_configuration["Backend:Url"] ?? "https://dhub-backend.onlyoncloud.com/api/data").Trim();
+        _backendUrl = (_configuration["Backend:Url"] ?? "https://dhub-backend-dev.onlyoncloud.com/api/data").Trim();
         _tableMode = _configuration["Tables:Mode"] ?? "all";
         _customTables = _configuration.GetSection("Tables:CustomTables").Get<List<string>>() ?? new List<string>();
     }
@@ -185,6 +185,13 @@ public class TallySyncWorker : BackgroundService
 
             _logger.LogInformation("─────────────────────────────────────────────────");
             _logger.LogInformation("Exported {FileCount} files", exportedFiles.Count);
+
+            // Resolve _xxx GUID columns (Strategy B post-sync name→GUID lookup,
+            // plus Strategy A fall-through detection for unrecognised TDL attributes)
+            _logger.LogInformation("Resolving GUID references...");
+            var guidResolver = new GuidResolutionService(_logger);
+            await guidResolver.BuildLookupTablesAsync(tempDir);
+            await guidResolver.ResolveGuidsAsync(tempDir);
 
             // Upload to backend
             _logger.LogInformation("Uploading to backend ({BackendUrl})...", _backendUrl);
